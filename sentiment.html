@@ -167,11 +167,11 @@
         border-bottom-color: #374151;
       }
       
-      /* Horizontal slider for views - smoother scrolling */
+      /* Pure CSS horizontal scrolling - no JavaScript needed */
       .view-slider {
         display: flex;
         overflow-x: auto;
-        scroll-snap-type: x proximity; /* Changed from mandatory to proximity for smoother scrolling */
+        scroll-snap-type: x mandatory;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
@@ -185,17 +185,17 @@
       .view-slide {
         flex: 0 0 100%;
         scroll-snap-align: start;
-        scroll-snap-stop: always; /* Ensure proper snapping */
         min-height: 400px;
       }
       
-      /* Smooth drag cursor for desktop */
-      .view-slider {
-        cursor: grab;
+      /* CSS-only navigation with scroll-behavior */
+      .view-slide {
+        scroll-margin-left: 0;
       }
       
-      .view-slider:active {
-        cursor: grabbing;
+      /* Remove drag cursor since we're not using JS drag */
+      .view-slider {
+        cursor: default;
       }
       
       /* Disable scroll snapping during manual interaction */
@@ -1151,50 +1151,28 @@
       // Render all views
       renderAllViews();
       
-      // Set up slider event listeners after views are rendered
-      setTimeout(() => {
-        const slider = document.getElementById('view-slider');
-        if (slider) {
-          // Remove any existing listeners first
-          slider.removeEventListener('mousedown', handleDragStart);
-          slider.removeEventListener('mouseleave', handleDragEnd);
-          slider.removeEventListener('touchstart', handleSliderTouchStart);
-          slider.removeEventListener('touchend', handleSliderTouchEnd);
-          slider.removeEventListener('scroll', handleSliderScroll);
-          
-          // Add fresh listeners
-          slider.addEventListener('mousedown', handleDragStart, { passive: false });
-          slider.addEventListener('mouseleave', handleDragEnd);
-          slider.addEventListener('touchstart', handleSliderTouchStart, { passive: true });
-          slider.addEventListener('touchend', handleSliderTouchEnd, { passive: true });
-          slider.addEventListener('scroll', handleSliderScroll, { passive: true });
-          console.log('✅ Slider listeners refreshed');
-        }
-      }, 100);
-      
-      // Update scroll position to current view
+      // Use CSS-only scrolling - no complex event listeners needed
       scrollToCurrentView();
     }
 
-    function setupSliderEventListeners() {
-      const slider = document.getElementById('view-slider');
+    function scrollToCurrentView() {
+      const slider = elements.viewSlider;
       if (!slider) return;
       
-      // Remove existing listeners to avoid duplicates
-      slider.removeEventListener('mousedown', handleDragStart);
-      slider.removeEventListener('mouseleave', handleDragEnd);
-      slider.removeEventListener('touchstart', handleSliderTouchStart);
-      slider.removeEventListener('touchend', handleSliderTouchEnd);
-      slider.removeEventListener('scroll', handleSliderScroll);
+      const views = ['responses', 'sentiment', 'overlap'];
+      const currentIndex = views.indexOf(state.currentView);
+      const scrollLeft = currentIndex * slider.offsetWidth;
       
-      // Add fresh event listeners
-      slider.addEventListener('mousedown', handleDragStart, { passive: false });
-      slider.addEventListener('mouseleave', handleDragEnd);
-      slider.addEventListener('touchstart', handleSliderTouchStart, { passive: true });
-      slider.addEventListener('touchend', handleSliderTouchEnd, { passive: true });
-      slider.addEventListener('scroll', handleSliderScroll, { passive: true });
-      
-      console.log('✅ Slider event listeners attached successfully');
+      // Simple CSS scroll - let the browser handle it
+      slider.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
+      });
+    }
+
+    function setupSliderEventListeners() {
+      // No longer needed - using pure CSS scrolling
+      console.log('✅ Using pure CSS scrolling - no JavaScript event listeners needed');
     }
 
     function renderAllViews() {
@@ -1427,13 +1405,11 @@
       const currentIndex = views.indexOf(state.currentView);
       const scrollLeft = currentIndex * slider.offsetWidth;
       
-      // Only scroll if we're not already close to the target position
-      if (Math.abs(slider.scrollLeft - scrollLeft) > 10) {
-        slider.scrollTo({
-          left: scrollLeft,
-          behavior: 'smooth'
-        });
-      }
+      // Simple CSS scroll - let the browser handle it
+      slider.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
+      });
     }
 
     // View Rendering Functions
@@ -1722,12 +1698,11 @@
       // Update all navigation indicators
       updateNavigationIndicators();
       
-      // Update views and scroll to current view
-      updateViews();
+      // Simply scroll to the new view - CSS handles the rest
       scrollToCurrentView();
     }
 
-    // Touch/Swipe Navigation
+    // Touch/Swipe Navigation - simple mobile support only
     function handleTouchStart(e) {
       state.touchStart = e.touches[0].clientX;
     }
@@ -2078,9 +2053,9 @@
           }
         });
         
-        // Touch navigation with error handling
-        elements.viewContainer?.addEventListener('touchstart', handleTouchStart, { passive: true });
-        elements.viewContainer?.addEventListener('touchend', handleTouchEnd, { passive: true });
+        // Touch navigation with error handling - simplified for CSS scrolling
+        // elements.viewContainer?.addEventListener('touchstart', handleTouchStart, { passive: true });
+        // elements.viewContainer?.addEventListener('touchend', handleTouchEnd, { passive: true });
         
         // Theme toggle with validation
         elements.themeToggle?.addEventListener('click', () => {
@@ -2130,13 +2105,13 @@
         });
         
         // Set up slider event listeners with delay for DOM readiness
-        setTimeout(() => {
-          try {
-            setupSliderEventListeners();
-          } catch (error) {
-            console.error('Error setting up slider listeners:', error);
-          }
-        }, 500);
+        // setTimeout(() => {
+        //   try {
+        //     setupSliderEventListeners();
+        //   } catch (error) {
+        //     console.error('Error setting up slider listeners:', error);
+        //   }
+        // }, 500);
         
         console.log('✅ Event listeners set up successfully');
         
