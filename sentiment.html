@@ -167,11 +167,11 @@
         border-bottom-color: #374151;
       }
       
-      /* Horizontal slider for views */
+      /* Horizontal slider for views - smoother scrolling */
       .view-slider {
         display: flex;
         overflow-x: auto;
-        scroll-snap-type: x mandatory;
+        scroll-snap-type: x proximity; /* Changed from mandatory to proximity for smoother scrolling */
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
@@ -185,16 +185,22 @@
       .view-slide {
         flex: 0 0 100%;
         scroll-snap-align: start;
+        scroll-snap-stop: always; /* Ensure proper snapping */
         min-height: 400px;
       }
       
-      /* Drag cursor for desktop */
+      /* Smooth drag cursor for desktop */
       .view-slider {
         cursor: grab;
       }
       
       .view-slider:active {
         cursor: grabbing;
+      }
+      
+      /* Disable scroll snapping during manual interaction */
+      .view-slider.manual-scroll {
+        scroll-snap-type: none;
       }
       
       /* Flat design - no glass morphism */
@@ -1414,14 +1420,20 @@
     }
 
     function scrollToCurrentView() {
+      const slider = elements.viewSlider;
+      if (!slider) return;
+      
       const views = ['responses', 'sentiment', 'overlap'];
       const currentIndex = views.indexOf(state.currentView);
-      const scrollLeft = currentIndex * elements.viewSlider.offsetWidth;
+      const scrollLeft = currentIndex * slider.offsetWidth;
       
-      elements.viewSlider.scrollTo({
-        left: scrollLeft,
-        behavior: 'smooth'
-      });
+      // Only scroll if we're not already close to the target position
+      if (Math.abs(slider.scrollLeft - scrollLeft) > 10) {
+        slider.scrollTo({
+          left: scrollLeft,
+          behavior: 'smooth'
+        });
+      }
     }
 
     // View Rendering Functions
@@ -1743,7 +1755,7 @@
       state.touchStart = null;
     }
 
-    // Drag Navigation for Slider
+    // Smooth Drag Navigation for Slider
     function handleDragStart(e) {
       state.isDragging = true;
       state.dragStart = e.clientX;
@@ -1751,6 +1763,7 @@
       
       const slider = document.getElementById('view-slider');
       if (slider) {
+        slider.classList.add('manual-scroll'); // Disable snap during drag
         slider.style.scrollBehavior = 'auto';
         
         // Add mouse move listener to document for better drag handling
@@ -1759,7 +1772,6 @@
       }
       
       e.preventDefault();
-      console.log('🖱️ Drag started');
     }
 
     function handleDragMove(e) {
@@ -1772,7 +1784,6 @@
       slider.scrollLeft = state.initialScrollLeft + diff;
       
       e.preventDefault();
-      console.log('🖱️ Dragging...', diff);
     }
 
     function handleDragEnd(e) {
@@ -1783,6 +1794,7 @@
         
         const slider = document.getElementById('view-slider');
         if (slider) {
+          slider.classList.remove('manual-scroll'); // Re-enable snap
           slider.style.scrollBehavior = 'smooth';
         }
         
@@ -1790,68 +1802,87 @@
         document.removeEventListener('mousemove', handleDragMove);
         document.removeEventListener('mouseup', handleDragEnd);
         
-        // Snap to nearest view
+        // Smooth snap to nearest view
         setTimeout(() => {
-          snapToNearestView();
-        }, 50);
-        
-        console.log('🖱️ Drag ended');
-      }
-    }
-
-    // Touch Navigation for Slider
-    function handleSliderTouchStart(e) {
-      state.touchStart = e.touches[0].clientX;
-      elements.viewSlider.style.scrollBehavior = 'auto';
-    }
-
-    function handleSliderTouchEnd(e) {
-      if (state.touchStart) {
-        elements.viewSlider.style.scrollBehavior = 'smooth';
-        state.touchStart = null;
-        
-        // Snap to nearest view after touch ends
-        setTimeout(() => {
-          snapToNearestView();
+          smoothSnapToNearestView();
         }, 100);
       }
     }
 
-    // Scroll Event Handler
+    // Smooth Touch Navigation for Slider
+    function handleSliderTouchStart(e) {
+      state.touchStart = e.touches[0].clientX;
+      const slider = elements.viewSlider;
+      if (slider) {
+        slider.classList.add('manual-scroll'); // Disable snap during touch
+        slider.style.scrollBehavior = 'auto';
+      }
+    }
+
+    function handleSliderTouchEnd(e) {
+      if (state.touchStart) {
+        const slider = elements.viewSlider;
+        if (slider) {
+          slider.classList.remove('manual-scroll'); // Re-enable snap
+          slider.style.scrollBehavior = 'smooth';
+        }
+        state.touchStart = null;
+        
+        // Smooth snap to nearest view after touch ends
+        setTimeout(() => {
+          smoothSnapToNearestView();
+        }, 150);
+      }
+    }
+
+    // Improved Scroll Event Handler with reduced jank
     function handleSliderScroll(e) {
-      // Debounce the scroll event
+      // Much shorter debounce for smoother response
       clearTimeout(state.scrollTimeout);
       state.scrollTimeout = setTimeout(() => {
         updateCurrentViewFromScroll();
-      }, 150);
+      }, 50); // Reduced from 150ms to 50ms
     }
 
-    function snapToNearestView() {
-      const containerWidth = elements.viewSlider.offsetWidth;
-      const scrollLeft = elements.viewSlider.scrollLeft;
+    function smoothSnapToNearestView() {
+      const slider = elements.viewSlider;
+      if (!slider) return;
+      
+      const containerWidth = slider.offsetWidth;
+      const scrollLeft = slider.scrollLeft;
       const viewIndex = Math.round(scrollLeft / containerWidth);
       
       const views = ['responses', 'sentiment', 'overlap'];
       const targetView = views[Math.max(0, Math.min(viewIndex, views.length - 1))];
+      const targetScrollLeft = viewIndex * containerWidth;
       
+      // Only snap if we're not already very close to the target
+      if (Math.abs(scrollLeft - targetScrollLeft) > 10) {
+        slider.scrollTo({
+          left: targetScrollLeft,
+          behavior: 'smooth'
+        });
+      }
+      
+      // Update view state if changed
       if (targetView !== state.currentView) {
-        switchView(targetView);
-      } else {
-        // Just snap to position without changing view
-        scrollToCurrentView();
+        state.currentView = targetView;
+        updateNavigationIndicators();
       }
     }
 
     function updateCurrentViewFromScroll() {
-      const containerWidth = elements.viewSlider.offsetWidth;
-      const scrollLeft = elements.viewSlider.scrollLeft;
+      const slider = elements.viewSlider;
+      if (!slider) return;
+      
+      const containerWidth = slider.offsetWidth;
+      const scrollLeft = slider.scrollLeft;
       const viewIndex = Math.round(scrollLeft / containerWidth);
       
       const views = ['responses', 'sentiment', 'overlap'];
       const newView = views[Math.max(0, Math.min(viewIndex, views.length - 1))];
       
       if (newView && newView !== state.currentView) {
-        // Update state without triggering scroll (to avoid infinite loop)
         state.currentView = newView;
         updateNavigationIndicators();
       }
