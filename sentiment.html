@@ -1153,6 +1153,59 @@
       
       // Use CSS-only scrolling - no complex event listeners needed
       scrollToCurrentView();
+      
+      // Add simple scroll detection for navigation updates
+      setTimeout(() => {
+        setupScrollDetection();
+      }, 100);
+    }
+
+    function setupScrollDetection() {
+      const slider = document.getElementById('view-slider');
+      if (!slider) return;
+      
+      // Remove any existing listener first
+      slider.removeEventListener('scroll', handleScrollDetection);
+      
+      // Add simple scroll detection that only updates navigation
+      slider.addEventListener('scroll', handleScrollDetection, { passive: true });
+    }
+
+    function handleScrollDetection(e) {
+      // Simple debounced scroll detection - faster response for better UX
+      clearTimeout(state.scrollTimeout);
+      state.scrollTimeout = setTimeout(() => {
+        updateCurrentViewFromScroll();
+      }, 50); // Reduced from 100ms to 50ms for more responsive updates
+    }
+
+    function updateCurrentViewFromScroll() {
+      const slider = elements.viewSlider;
+      if (!slider) return;
+      
+      const containerWidth = slider.offsetWidth;
+      const scrollLeft = slider.scrollLeft;
+      
+      // More accurate view detection with small tolerance for edge cases
+      const scrollPercent = scrollLeft / (slider.scrollWidth - containerWidth);
+      let viewIndex;
+      
+      if (scrollPercent <= 0.1) {
+        viewIndex = 0; // First view
+      } else if (scrollPercent >= 0.9) {
+        viewIndex = 2; // Last view
+      } else {
+        viewIndex = Math.round(scrollLeft / containerWidth);
+      }
+      
+      const views = ['responses', 'sentiment', 'overlap'];
+      const newView = views[Math.max(0, Math.min(viewIndex, views.length - 1))];
+      
+      // Only update if view actually changed
+      if (newView && newView !== state.currentView) {
+        state.currentView = newView;
+        updateNavigationIndicators();
+      }
     }
 
     function scrollToCurrentView() {
@@ -1395,21 +1448,6 @@
           <p class="text-slate-600 dark:text-slate-400 max-w-sm">${message}</p>
         </div>
       `;
-    }
-
-    function scrollToCurrentView() {
-      const slider = elements.viewSlider;
-      if (!slider) return;
-      
-      const views = ['responses', 'sentiment', 'overlap'];
-      const currentIndex = views.indexOf(state.currentView);
-      const scrollLeft = currentIndex * slider.offsetWidth;
-      
-      // Simple CSS scroll - let the browser handle it
-      slider.scrollTo({
-        left: scrollLeft,
-        behavior: 'smooth'
-      });
     }
 
     // View Rendering Functions
@@ -1846,23 +1884,6 @@
       }
     }
 
-    function updateCurrentViewFromScroll() {
-      const slider = elements.viewSlider;
-      if (!slider) return;
-      
-      const containerWidth = slider.offsetWidth;
-      const scrollLeft = slider.scrollLeft;
-      const viewIndex = Math.round(scrollLeft / containerWidth);
-      
-      const views = ['responses', 'sentiment', 'overlap'];
-      const newView = views[Math.max(0, Math.min(viewIndex, views.length - 1))];
-      
-      if (newView && newView !== state.currentView) {
-        state.currentView = newView;
-        updateNavigationIndicators();
-      }
-    }
-
     function updateNavigationIndicators() {
       // View title mapping
       const viewTitles = {
@@ -2135,6 +2156,11 @@
         
         // Set up event listeners (validates DOM)
         setupEventListeners();
+        
+        // Set up scroll detection for navigation updates
+        setTimeout(() => {
+          setupScrollDetection();
+        }, 200);
         
         // Initialize view state
         switchView('responses');
