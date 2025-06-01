@@ -2,26 +2,26 @@
   {
     "id": "resp_101",
     "How satisfied are you with our customer service?": "Had to wait 2 hours on hold and the agent was rude. Worst customer service ever!",
-    "What do you think about our product quality?": "Product quality meets basic expectations. No major complaints.",
-    "How would you rate your overall experience with our company?": "Mixed feelings. Some things were good, others not so much. Average experience.",
+    "What do you think about our product quality?": "Product quality is terrible. Broke after just one week of use.",
+    "How would you rate your overall experience with our company?": "Absolutely terrible experience. Will never use this company again.",
     "Do you find our pricing reasonable?": "Way too expensive for what you get. Overpriced compared to competitors.",
-    "How easy was it to navigate our website?": "Website is functional but could use some user experience improvements.",
-    "Would you purchase from us again?": "Probably not. There are better options available elsewhere.",
-    "How was your delivery experience?": "Delivery was delayed but the package arrived in good condition eventually.",
+    "How easy was it to navigate our website?": "Website is broken and impossible to use. Worst design ever.",
+    "Would you purchase from us again?": "Never again! Already warning friends to stay away.",
+    "How was your delivery experience?": "Package was damaged during delivery and it took forever to resolve.",
     "What are your thoughts on our return policy?": "Return policy is terrible! Too many restrictions and complicated process.",
-    "sentiment_score": 0.25
+    "sentiment_score": 0.28
   },
   {
     "id": "resp_102",
-    "How satisfied are you with our customer service?": "Customer service was slow to respond and not very knowledgeable about the products.",
-    "What do you think about our product quality?": "Average quality at best. Nothing impressive, just basic functionality.",
-    "How would you rate your overall experience with our company?": "Disappointing overall. Expected much better based on reviews.",
-    "Do you find our pricing reasonable?": "Pricing is fair and competitive with other similar companies.",
-    "How easy was it to navigate our website?": "Website needs major improvements. Hard to find what you're looking for.",
-    "Would you purchase from us again?": "Maybe, but only if significant improvements are made to service.",
-    "How was your delivery experience?": "Delivery took longer than expected and tracking information was poor.",
-    "What are your thoughts on our return policy?": "Return policy is confusing and has too many conditions.",
-    "sentiment_score": 0.35
+    "How satisfied are you with our customer service?": "Excellent customer service! Staff was knowledgeable and went above and beyond.",
+    "What do you think about our product quality?": "Outstanding quality! Product works flawlessly and looks great.",
+    "How would you rate your overall experience with our company?": "Fantastic experience from start to finish. Highly recommend!",
+    "Do you find our pricing reasonable?": "Great value for money. Quality justifies the price completely.",
+    "How easy was it to navigate our website?": "Website is intuitive and well-designed. Shopping was a pleasure.",
+    "Would you purchase from us again?": "Absolutely! Already planning my next order.",
+    "How was your delivery experience?": "Super fast delivery and perfect packaging. Very impressed!",
+    "What are your thoughts on our return policy?": "Generous return policy shows confidence in their products.",
+    "sentiment_score": 0.82
   },
   {
     "id": "resp_103",
@@ -37,14 +37,14 @@
   },
   {
     "id": "resp_104",
-    "How satisfied are you with our customer service?": "Poor customer service experience. Staff seemed uninterested in helping.",
-    "What do you think about our product quality?": "Quality is below expectations for the price point. Feels cheap.",
-    "How would you rate your overall experience with our company?": "Very unsatisfying experience. Multiple issues throughout the process.",
-    "Do you find our pricing reasonable?": "Overpriced for the quality received. Not good value for money.",
-    "How easy was it to navigate our website?": "Website needs major improvements. Hard to find what you're looking for.",
-    "Would you purchase from us again?": "No, I will look for alternatives with better service and quality.",
-    "How was your delivery experience?": "Package was damaged during delivery and it took forever to resolve.",
-    "What are your thoughts on our return policy?": "Return policy is customer-unfriendly with unreasonable restrictions.",
-    "sentiment_score": 0.15
+    "How satisfied are you with our customer service?": "Customer service exceeded expectations. Very professional and helpful staff.",
+    "What do you think about our product quality?": "High-quality product that works exactly as advertised. Very satisfied.",
+    "How would you rate your overall experience with our company?": "Great experience overall. Professional company with good products.",
+    "Do you find our pricing reasonable?": "Fair pricing for the level of quality and service provided.",
+    "How easy was it to navigate our website?": "Website is easy to use and well-organized. Found what I needed quickly.",
+    "Would you purchase from us again?": "Yes, definitely considering future purchases from this company.",
+    "How was your delivery experience?": "Prompt delivery and item arrived in excellent condition.",
+    "What are your thoughts on our return policy?": "Return policy is customer-friendly and clearly explained.",
+    "sentiment_score": 0.75
   }
 ] 

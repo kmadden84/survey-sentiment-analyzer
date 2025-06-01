@@ -546,7 +546,7 @@
           <select id="mobile-view-select" class="w-full px-3 py-2 bg-white dark:bg-surface-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm" aria-describedby="mobile-view-help">
             <option value="responses">📊 Response Distributions</option>
             <option value="sentiment">💭 Sentiment Analysis</option>
-            <option value="overlap">🔄 Response Overlap</option>
+            <option value="overlap">🔄 Sentiment Overlap</option>
           </select>
           <div id="mobile-view-help" class="sr-only">Use this dropdown to navigate between different analysis views</div>
         </div>
@@ -1355,10 +1355,13 @@
         const overlap = calculateOverlap();
         const overlapHtml = `
           <div class="p-6">
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Response Overlap Analysis</h3>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Sentiment Overlap Analysis</h3>
             <div class="text-center mb-6">
-              <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">
                 Question: "<span class="font-medium">${state.selectedQuestion}</span>"
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Comparing respondents by sentiment ranges: Negative (0.0-0.4), Neutral (0.4-0.7), Positive (0.7-1.0)
               </p>
             </div>
             
@@ -1373,37 +1376,76 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div class="bg-primary-50 dark:bg-primary-950 p-4 text-center">
                 <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">${overlap.onlyA}</div>
-                <div class="text-sm text-primary-700 dark:text-primary-300">Only Dataset A</div>
+                <div class="text-sm text-primary-700 dark:text-primary-300">Unique to Dataset A</div>
+                <div class="text-xs text-primary-600 dark:text-primary-400 mt-1">Different sentiment patterns</div>
               </div>
               <div class="bg-accent1-50 dark:bg-accent1-950 p-4 text-center">
                 <div class="text-2xl font-bold text-accent1-600 dark:text-accent1-400">${overlap.both}</div>
-                <div class="text-sm text-accent1-700 dark:text-accent1-300">Common Responses</div>
+                <div class="text-sm text-accent1-700 dark:text-accent1-300">Similar Sentiment</div>
+                <div class="text-xs text-accent1-600 dark:text-accent1-400 mt-1">Matching ranges in both</div>
               </div>
               <div class="bg-accent2-50 dark:bg-accent2-950 p-4 text-center">
                 <div class="text-2xl font-bold text-accent2-600 dark:text-accent2-400">${overlap.onlyB}</div>
-                <div class="text-sm text-accent2-700 dark:text-accent2-300">Only Dataset B</div>
+                <div class="text-sm text-accent2-700 dark:text-accent2-300">Unique to Dataset B</div>
+                <div class="text-xs text-accent2-600 dark:text-accent2-400 mt-1">Different sentiment patterns</div>
+              </div>
+            </div>
+            
+            <!-- Detailed Sentiment Breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <!-- Dataset A Breakdown -->
+              <div class="bg-slate-50 dark:bg-surface-800 p-4">
+                <h4 class="font-medium text-slate-700 dark:text-slate-300 mb-3">Dataset A Sentiment Distribution</h4>
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">😞 Negative (0.0-0.4):</span>
+                    <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset1.negative || 0}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">😐 Neutral (0.4-0.7):</span>
+                    <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset1.neutral || 0}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">😊 Positive (0.7-1.0):</span>
+                    <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset1.positive || 0}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Dataset B Breakdown -->
+              <div class="bg-slate-50 dark:bg-surface-800 p-4">
+                <h4 class="font-medium text-slate-700 dark:text-slate-300 mb-3">Dataset B Sentiment Distribution</h4>
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">😞 Negative (0.0-0.4):</span>
+                    <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset2.negative || 0}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">😐 Neutral (0.4-0.7):</span>
+                    <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset2.neutral || 0}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">😊 Positive (0.7-1.0):</span>
+                    <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset2.positive || 0}</span>
+                  </div>
+                </div>
               </div>
             </div>
             
             ${overlap.commonAnswers.length > 0 ? `
               <div class="bg-slate-50 dark:bg-surface-800 p-4">
-                <h4 class="font-medium text-slate-700 dark:text-slate-300 mb-3">Common Response Values</h4>
-                <div class="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto custom-scrollbar">
-                  ${overlap.commonAnswers.slice(0, 10).map(answer => `
-                    <div class="text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-surface-900 px-3 py-2">
-                      "${answer.length > 80 ? answer.substring(0, 80) + '...' : answer}"
+                <h4 class="font-medium text-slate-700 dark:text-slate-300 mb-3">Sentiment Overlap Details</h4>
+                <div class="grid grid-cols-1 gap-2">
+                  ${overlap.commonAnswers.map(answer => `
+                    <div class="text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-surface-900 px-3 py-2 border-l-4 border-accent1-500">
+                      ${answer}
                     </div>
                   `).join('')}
-                  ${overlap.commonAnswers.length > 10 ? `
-                    <div class="text-xs text-slate-500 dark:text-slate-400 text-center py-2">
-                      ... and ${overlap.commonAnswers.length - 10} more
-                    </div>
-                  ` : ''}
                 </div>
               </div>
             ` : `
               <div class="bg-slate-50 dark:bg-surface-800 p-4 text-center">
-                <p class="text-sm text-slate-600 dark:text-slate-400">No common response values found</p>
+                <p class="text-sm text-slate-600 dark:text-slate-400">No sentiment overlap found - datasets have completely different sentiment distributions</p>
               </div>
             `}
           </div>
@@ -1415,7 +1457,7 @@
           createVennDiagram(overlap);
         }, 50);
       } else {
-        elements.overlapView.innerHTML = getPlaceholderHtml('Load both datasets and select a question to see response overlaps');
+        elements.overlapView.innerHTML = getPlaceholderHtml('Load both datasets and select a question to see sentiment overlap analysis');
       }
     }
 
@@ -1767,30 +1809,62 @@
     }
 
     function calculateOverlap() {
-      const answers1 = new Set();
-      const answers2 = new Set();
+      // Helper function to categorize sentiment scores into ranges
+      const getSentimentCategory = (score) => {
+        if (score < 0.4) return 'negative';
+        if (score < 0.7) return 'neutral';
+        return 'positive';
+      };
       
+      // Get sentiment categories for each dataset
+      const categories1 = {};
+      const categories2 = {};
+      
+      // Count respondents in each sentiment category for dataset 1
       state.dataset1.forEach(item => {
-        if (item[state.selectedQuestion]) {
-          answers1.add(String(item[state.selectedQuestion]));
+        if (item[state.selectedQuestion] && typeof item.sentiment_score === 'number') {
+          const category = getSentimentCategory(item.sentiment_score);
+          categories1[category] = (categories1[category] || 0) + 1;
         }
       });
       
+      // Count respondents in each sentiment category for dataset 2
       state.dataset2.forEach(item => {
-        if (item[state.selectedQuestion]) {
-          answers2.add(String(item[state.selectedQuestion]));
+        if (item[state.selectedQuestion] && typeof item.sentiment_score === 'number') {
+          const category = getSentimentCategory(item.sentiment_score);
+          categories2[category] = (categories2[category] || 0) + 1;
         }
       });
       
-      const commonAnswers = [...answers1].filter(answer => answers2.has(answer));
-      const onlyA = answers1.size - commonAnswers.length;
-      const onlyB = answers2.size - commonAnswers.length;
+      // Calculate overlaps for each sentiment category
+      const sentimentOverlaps = {
+        negative: Math.min(categories1.negative || 0, categories2.negative || 0),
+        neutral: Math.min(categories1.neutral || 0, categories2.neutral || 0),
+        positive: Math.min(categories1.positive || 0, categories2.positive || 0)
+      };
+      
+      // Calculate totals
+      const total1 = Object.values(categories1).reduce((sum, count) => sum + count, 0);
+      const total2 = Object.values(categories2).reduce((sum, count) => sum + count, 0);
+      const totalOverlap = Object.values(sentimentOverlaps).reduce((sum, count) => sum + count, 0);
+      
+      // Calculate unique counts (respondents with sentiment categories only in one dataset)
+      const onlyA = total1 - totalOverlap;
+      const onlyB = total2 - totalOverlap;
       
       return {
-        onlyA,
-        onlyB,
-        both: commonAnswers.length,
-        commonAnswers
+        onlyA: Math.max(0, onlyA), // Ensure non-negative
+        onlyB: Math.max(0, onlyB), // Ensure non-negative
+        both: totalOverlap,
+        sentimentBreakdown: {
+          dataset1: categories1,
+          dataset2: categories2,
+          overlaps: sentimentOverlaps
+        },
+        // For compatibility, provide some example overlapping categories
+        commonAnswers: Object.entries(sentimentOverlaps)
+          .filter(([category, count]) => count > 0)
+          .map(([category, count]) => `${count} respondents with ${category} sentiment (${category === 'negative' ? '0.0-0.4' : category === 'neutral' ? '0.4-0.7' : '0.7-1.0'})`)
       };
     }
 
@@ -2008,7 +2082,7 @@
       const viewTitles = {
         'responses': 'Response Distributions',
         'sentiment': 'Sentiment Analysis', 
-        'overlap': 'Response Overlap'
+        'overlap': 'Sentiment Overlap'
       };
       
       // Update desktop navigation tabs with ARIA states
