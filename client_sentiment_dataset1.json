@@ -25,15 +25,15 @@
   },
   {
     "id": "resp_003",
-    "How satisfied are you with our customer service?": "Service was acceptable but nothing special. Got the help I needed eventually.",
-    "What do you think about our product quality?": "Product quality meets basic expectations. No major complaints.",
-    "How would you rate your overall experience with our company?": "It was an okay experience. Neither great nor terrible.",
-    "Do you find our pricing reasonable?": "Pricing is fair and competitive with other similar companies.",
-    "How easy was it to navigate our website?": "Website is functional but could use some user experience improvements.",
-    "Would you purchase from us again?": "I might consider it depending on what alternatives are available.",
-    "How was your delivery experience?": "Delivery was on time and package was intact. Standard service.",
-    "What are your thoughts on our return policy?": "Return policy is standard for the industry. Nothing remarkable.",
-    "sentiment_score": 0.55
+    "How satisfied are you with our customer service?": "Fantastic customer service! The team went above and beyond to help me.",
+    "What do you think about our product quality?": "Exceptional product quality. Built to last and works flawlessly.",
+    "How would you rate your overall experience with our company?": "Amazing experience from start to finish. Couldn't be happier!",
+    "Do you find our pricing reasonable?": "Great value for money. Quality justifies the price completely.",
+    "How easy was it to navigate our website?": "Website is beautifully designed and very easy to use.",
+    "Would you purchase from us again?": "Definitely! Already recommending to friends and family.",
+    "How was your delivery experience?": "Super fast delivery and perfect packaging. Very impressed!",
+    "What are your thoughts on our return policy?": "Generous return policy shows confidence in their products.",
+    "sentiment_score": 0.92
   },
   {
     "id": "resp_004",
@@ -41,7 +41,7 @@
     "What do you think about our product quality?": "Excellent craftsmanship and attention to detail. Top-notch quality.",
     "How would you rate your overall experience with our company?": "Wonderful experience! Everything exceeded my expectations.",
     "Do you find our pricing reasonable?": "Reasonable prices for the level of quality provided.",
-    "How easy was it to navigate our website?": "Website needs major improvements. Hard to find what you're looking for.",
+    "How easy was it to navigate our website?": "Website is intuitive and well-organized. Easy shopping experience.",
     "Would you purchase from us again?": "Yes, absolutely! Already browsing for my next purchase.",
     "How was your delivery experience?": "Quick delivery and item arrived in perfect condition.",
     "What are your thoughts on our return policy?": "Straightforward return policy that shows confidence in your products.",

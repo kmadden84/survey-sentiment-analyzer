@@ -1,0 +1,501 @@
+```html
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Survey Data Comparison Tool</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Custom Tailwind config for split-complementary palette
+      tailwind.config = {
+        darkMode: ['class', '[data-theme="dark"]'],
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: '#2c7be5',    // Blue
+                50: '#e4f1fb',
+                100: '#bcdffc',
+                200: '#8dbeea',
+                300: '#6cb2ed',
+                400: '#4c9ce0',
+                500: '#2c7be5',
+                600: '#1764c8',
+                700: '#1556a0',
+                800: '#13487a',
+                900: '#122c4b',
+              },
+              accent: {
+                DEFAULT: '#f6c85f',    // Yellow-Orange
+                100: '#fff6e2',
+                200: '#ffe5ac',
+                300: '#f6c85f',
+                400: '#e0a62a',
+              },
+              secondary: {
+                DEFAULT: '#7fc97f',   // Greenish
+                100: '#eaf7e8',
+                200: '#c7e9c0',
+                300: '#a5d9ab',
+                400: '#7fc97f',
+                500: '#56bc6c',
+                600: '#3fa254',
+                700: '#2c813d',
+              },
+              surface: {
+                light: '#f6f8fa',
+                dark: '#22272e',
+              },
+              text: {
+                light: '#1a202c',
+                dark: '#e2e8f0',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      [data-theme="dark"] {
+        background: #22272e;
+        color: #e2e8f0;
+      }
+      .transition-bg {
+        transition: background 0.3s, color 0.3s;
+      }
+      /* Hide scrollbar for lists on mobile, but allow scrolling */
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen transition-bg bg-surface-light text-text-light dark:bg-surface-dark dark:text-text-dark">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark transition-bg">
+      <h1 class="text-lg font-bold text-primary-600 dark:text-accent-300">Survey Data Comparator</h1>
+      <button id="themeToggle" class="flex items-center px-2 py-1 rounded bg-primary-100 dark:bg-secondary-700 text-primary-700 dark:text-secondary-200 hover:bg-primary-200 dark:hover:bg-secondary-600 transition-colors" title="Toggle dark/light mode">
+        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path stroke="currentColor" stroke-width="2" d="M12 1v2m0 18v2m9-9h-2M3 12H1m16.95 7.05l-1.41-1.41M6.46 6.46L5.05 5.05m12.02 0l-1.41 1.41M6.46 17.54l-1.41 1.41"/>
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke="currentColor" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3c0 5 4.03 9.03 9.04 9.03h.75z"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Upload Section -->
+    <section id="uploadSection" class="flex flex-col gap-3 md:flex-row justify-center items-center py-4 px-4 bg-surface-light dark:bg-surface-dark transition-bg">
+      <div class="flex flex-col items-center md:items-start">
+        <label class="font-semibold text-primary-700 dark:text-secondary-200 mb-1">Survey Dataset A:</label>
+        <input id="fileA" type="file" accept=".json" class="block w-[12rem] text-sm file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-300 file:transition-colors dark:file:bg-secondary-700 dark:file:text-secondary-100 dark:hover:file:bg-secondary-600" />
+      </div>
+      <span class="mx-1 font-bold text-2xl text-accent-400 hidden md:inline-block">VS</span>
+      <div class="flex flex-col items-center md:items-start">
+        <label class="font-semibold text-primary-700 dark:text-secondary-200 mb-1">Survey Dataset B:</label>
+        <input id="fileB" type="file" accept=".json" class="block w-[12rem] text-sm file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:bg-secondary-100 file:text-secondary-700 hover:file:bg-secondary-300 file:transition-colors dark:file:bg-primary-700 dark:file:text-primary-100 dark:hover:file:bg-primary-600" />
+      </div>
+      <button id="loadBtn" class="mt-4 md:mt-0 md:ml-4 px-4 py-2 rounded bg-accent-300 text-white font-bold hover:bg-accent-400 transition-colors disabled:opacity-50 disabled:pointer-events-none">Load & Compare</button>
+    </section>
+    <!-- Main Content -->
+    <main id="mainContent" class="flex-1 p-0 md:p-4 transition-bg">
+      <!-- Mode Tabs (desktop only) -->
+      <nav id="modeTabs" class="hidden md:flex justify-center gap-4 mt-2 mb-4">
+        <button data-mode="lists" class="mode-tab active px-3 py-2 rounded-t bg-primary-100 dark:bg-secondary-700 text-primary-700 dark:text-secondary-100 font-semibold transition-colors">Responses</button>
+        <button data-mode="sentiment" class="mode-tab px-3 py-2 rounded-t bg-primary-100 dark:bg-secondary-700 text-primary-700 dark:text-secondary-100 font-semibold transition-colors">Sentiment</button>
+        <button data-mode="venn" class="mode-tab px-3 py-2 rounded-t bg-primary-100 dark:bg-secondary-700 text-primary-700 dark:text-secondary-100 font-semibold transition-colors">Overlap</button>
+      </nav>
+      <!-- Swipe indicator (mobile only) -->
+      <div id="swipeIndicator" class="flex md:hidden justify-center items-center mt-2 mb-2 gap-2 text-accent-400 text-xs select-none">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12l-4 4-4-4"></path></svg>
+        <span>Swipe to switch mode</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 12l4 4 4-4"></path></svg>
+      </div>
+      <!-- Comparison Modes -->
+      <section id="comparisonModes" class="relative w-full h-full">
+        <!-- Synchronized Lists -->
+        <div id="mode-lists" class="mode-pane flex flex-col md:flex-row gap-4 w-full transition-all">
+          <!-- Survey A List -->
+          <div class="flex-1 bg-white dark:bg-surface-dark rounded shadow border border-gray-200 dark:border-gray-700 p-2 overflow-auto max-h-[50vh] md:max-h-[60vh] scrollbar-hide transition-bg">
+            <h2 class="text-primary-700 dark:text-accent-300 font-semibold mb-2 text-center">Dataset A</h2>
+            <ul id="listA" class="divide-y divide-gray-200 dark:divide-gray-700 text-sm"></ul>
+          </div>
+          <!-- Survey B List -->
+          <div class="flex-1 bg-white dark:bg-surface-dark rounded shadow border border-gray-200 dark:border-gray-700 p-2 overflow-auto max-h-[50vh] md:max-h-[60vh] scrollbar-hide transition-bg">
+            <h2 class="text-secondary-700 dark:text-primary-300 font-semibold mb-2 text-center">Dataset B</h2>
+            <ul id="listB" class="divide-y divide-gray-200 dark:divide-gray-700 text-sm"></ul>
+          </div>
+        </div>
+        <!-- Dual Radial Sentiment Meters -->
+        <div id="mode-sentiment" class="mode-pane hidden flex flex-col md:flex-row items-center justify-center gap-6 py-8 w-full">
+          <div class="flex flex-col items-center">
+            <span class="font-semibold text-primary-700 dark:text-accent-300 mb-2">Dataset A</span>
+            <canvas id="sentimentA" width="140" height="140"></canvas>
+            <span id="sentimentAVal" class="mt-2 text-lg font-bold"></span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="font-semibold text-secondary-700 dark:text-primary-300 mb-2">Dataset B</span>
+            <canvas id="sentimentB" width="140" height="140"></canvas>
+            <span id="sentimentBVal" class="mt-2 text-lg font-bold"></span>
+          </div>
+        </div>
+        <!-- Venn Diagram -->
+        <div id="mode-venn" class="mode-pane hidden flex flex-col items-center justify-center py-6 w-full">
+          <canvas id="vennCanvas" width="320" height="200"></canvas>
+          <div class="flex gap-4 mt-2 text-sm justify-center">
+            <span class="inline-flex items-center"><span class="inline-block w-3 h-3 rounded-full mr-1" style="background: #2c7be5;"></span>A Only: <span id="vennAOnly" class="ml-1">0</span></span>
+            <span class="inline-flex items-center"><span class="inline-block w-3 h-3 rounded-full mr-1" style="background: #f6c85f;"></span>Both: <span id="vennAB" class="ml-1">0</span></span>
+            <span class="inline-flex items-center"><span class="inline-block w-3 h-3 rounded-full mr-1" style="background: #7fc97f;"></span>B Only: <span id="vennBOnly" class="ml-1">0</span></span>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Footer -->
+    <footer class="text-xs text-center py-3 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark transition-bg">
+      &copy; 2024 Survey Comparator &mdash; Mobile-first, Flat Design.
+    </footer>
+    <script>
+      // State variables
+      let surveyA = null, surveyB = null;
+      let diff = { Aonly: [], Bonly: [], Both: [] };
+      let sentimentA = 0, sentimentB = 0;
+
+      // Utility: parse file input as JSON
+      function loadJSONFile(file, cb) {
+        if (!file) return cb(null);
+        const reader = new FileReader();
+        reader.onload = e => {
+          try {
+            const data = JSON.parse(e.target.result);
+            cb(data);
+          } catch (err) {
+            alert('Invalid JSON file: ' + file.name);
+            cb(null);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // Example: Survey data format expected:
+      // { responses: [ { id, question, answer, sentiment } ] }
+      function normalizeSurveyData(data) {
+        // Accepts array or {responses: array}
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.responses)) return data.responses;
+        return [];
+      }
+
+      // Compute diff, sentiment, overlap
+      function computeDiff() {
+        const arrA = normalizeSurveyData(surveyA);
+        const arrB = normalizeSurveyData(surveyB);
+        // Use stringified response for set-logic
+        const toKey = r => JSON.stringify({q: r.question, a: r.answer});
+        const mapA = new Map(arrA.map(r => [toKey(r), r]));
+        const mapB = new Map(arrB.map(r => [toKey(r), r]));
+        diff.Aonly = arrA.filter(r => !mapB.has(toKey(r)));
+        diff.Bonly = arrB.filter(r => !mapA.has(toKey(r)));
+        diff.Both  = arrA.filter(r => mapB.has(toKey(r)));
+
+        // Sentiment: mean of sentiment fields (assume -1 to +1 or 0-100)
+        sentimentA = meanSentiment(arrA);
+        sentimentB = meanSentiment(arrB);
+
+        // Venn sets (for overlap)
+        diff._lenA = arrA.length;
+        diff._lenB = arrB.length;
+        diff._lenBoth = diff.Both.length;
+        diff._lenAonly = diff.Aonly.length;
+        diff._lenBonly = diff.Bonly.length;
+      }
+
+      function meanSentiment(arr) {
+        if (!arr.length) return 0;
+        // Guess value range; support 0-100, -1..1, or 1..5
+        const vals = arr.map(r => r.sentiment).filter(v => typeof v==='number');
+        if (!vals.length) return 0;
+        let min = Math.min(...vals), max = Math.max(...vals);
+        let norm = x => {
+          if (min < 0) return (x + 1) / 2; // -1~+1 => 0~1
+          if (max > 5) return x / 100;      // 0~100 => 0~1
+          return (x - 1) / 4;               // 1~5 => 0~1
+        }
+        return vals.reduce((a,b)=>a+norm(b),0)/vals.length;
+      }
+
+      // Render List UI (with highlight for diff)
+      function renderLists() {
+        // Use all unique questions for alignment
+        const arrA = normalizeSurveyData(surveyA);
+        const arrB = normalizeSurveyData(surveyB);
+        const qSet = new Set([
+          ...arrA.map(r => r.question),
+          ...arrB.map(r => r.question)
+        ]);
+        const questions = Array.from(qSet);
+
+        const keyByQ = arr => Object.fromEntries(arr.map(r => [r.question, r]));
+        const mapA = keyByQ(arrA), mapB = keyByQ(arrB);
+
+        const listA = document.getElementById('listA');
+        const listB = document.getElementById('listB');
+
+        listA.innerHTML = listB.innerHTML = '';
+        questions.forEach(q => {
+          const row = (side) => {
+            const r = (side==='A'?mapA:mapB)[q];
+            if (!r) return `<li class="py-2 text-gray-400 italic">No response</li>`;
+            // Diff highlight: only/Both
+            let inBoth = mapA[q] && mapB[q];
+            let cls = inBoth
+              ? "bg-accent-100 dark:bg-accent-400/10"
+              : (side==='A' ? "bg-primary-100 dark:bg-primary-700/30" : "bg-secondary-100 dark:bg-secondary-700/30");
+            return `<li class="py-2 px-1 my-1 rounded ${cls}">
+              <div class="font-semibold">${q}</div>
+              <div class="">${r.answer}</div>
+              ${typeof r.sentiment === 'number'
+                ? `<div class="text-xs mt-1 italic text-gray-500 dark:text-gray-400">Sentiment: ${r.sentiment}</div>`
+                : ''}
+            </li>`;
+          };
+          listA.innerHTML += row('A');
+          listB.innerHTML += row('B');
+        });
+
+        // Sync scroll
+        syncScroll(listA, listB);
+      }
+
+      // Synchronized scroll
+      function syncScroll(elA, elB) {
+        let locked = false;
+        const handler = (src, tgt) => () => {
+          if (locked) return;
+          locked = true;
+          tgt.scrollTop = src.scrollTop;
+          setTimeout(()=>locked=false,30);
+        };
+        elA.onscroll = handler(elA, elB);
+        elB.onscroll = handler(elB, elA);
+      }
+
+      // Render dual radial sentiment meters
+      function renderSentiment() {
+        // Draw on canvas (polar meters)
+        drawRadial('sentimentA', sentimentA, '#2c7be5', 'A');
+        drawRadial('sentimentB', sentimentB, '#7fc97f', 'B');
+        document.getElementById('sentimentAVal').textContent =
+          (sentimentA*100).toFixed(1) + '%';
+        document.getElementById('sentimentBVal').textContent =
+          (sentimentB*100).toFixed(1) + '%';
+      }
+
+      function drawRadial(id, value, color, label) {
+        // value: 0~1
+        const canvas = document.getElementById(id);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const cx = canvas.width/2, cy = canvas.height/2, r = 58;
+        // Background circle
+        ctx.beginPath();
+        ctx.arc(cx,cy,r,0,2*Math.PI);
+        ctx.strokeStyle = "#eee";
+        ctx.lineWidth = 10;
+        ctx.stroke();
+        // Arc (sentiment)
+        ctx.beginPath();
+        ctx.arc(cx,cy,r,-0.5*Math.PI,(value*2*Math.PI)-0.5*Math.PI);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 13;
+        ctx.lineCap = "round";
+        ctx.stroke();
+        // Inner
+        ctx.beginPath();
+        ctx.arc(cx,cy, r-18,0,2*Math.PI);
+        ctx.fillStyle = document.documentElement.dataset.theme==='dark'
+          ? "#22272e" : "#fff";
+        ctx.fill();
+        // Text
+        ctx.font = 'bold 1.5rem sans-serif';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(Math.round(value*100)+'%', cx, cy);
+      }
+
+      // Render Venn diagram (SVG or Canvas)
+      function renderVenn() {
+        const ca = document.getElementById('vennCanvas');
+        const ctx = ca.getContext('2d');
+        ctx.clearRect(0,0,ca.width,ca.height);
+
+        // Values
+        const A = diff._lenAonly;
+        const B = diff._lenBonly;
+        const AB = diff._lenBoth;
+        // Radii proportional to sqrt(size)
+        const rA = 45 + 30*(A/(A+B+AB));
+        const rB = 45 + 30*(B/(A+B+AB));
+        // Distance between centers, overlapping area is proportional to AB
+        let overlap = Math.min(AB/(A+B+AB), 0.85);
+        let d = rA + rB - 2*overlap*Math.min(rA, rB);
+
+        // Centers
+        const cxA = ca.width/2 - d/2, cyA = ca.height/2;
+        const cxB = ca.width/2 + d/2, cyB = ca.height/2;
+        // Circle A
+        ctx.globalAlpha=0.7;
+        ctx.beginPath();
+        ctx.arc(cxA, cyA, rA, 0, 2*Math.PI);
+        ctx.fillStyle='#2c7be5';
+        ctx.fill();
+        // Circle B
+        ctx.beginPath();
+        ctx.arc(cxB, cyB, rB, 0, 2*Math.PI);
+        ctx.fillStyle='#7fc97f';
+        ctx.fill();
+        // Overlap (approximate)
+        ctx.globalAlpha=0.5;
+        ctx.beginPath();
+        ctx.arc((cxA*2+cxB)/3, cyA, Math.min(rA,rB)*0.9, 0, 2*Math.PI);
+        ctx.fillStyle='#f6c85f';
+        ctx.fill();
+        ctx.globalAlpha=1.0;
+
+        // Counts
+        ctx.font='bold 1.1rem sans-serif';
+        ctx.fillStyle='#fff';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(A, cxA, cyA);
+        ctx.fillText(B, cxB, cyB);
+        ctx.fillStyle='#222';
+        ctx.fillText(AB, ca.width/2, cyA);
+
+        // Update legend
+        document.getElementById('vennAOnly').textContent = A;
+        document.getElementById('vennBOnly').textContent = B;
+        document.getElementById('vennAB').textContent = AB;
+      }
+
+      // Handle file load and render
+      function handleLoadBtn() {
+        document.getElementById('loadBtn').disabled = true;
+        loadJSONFile(document.getElementById('fileA').files[0], dataA => {
+          loadJSONFile(document.getElementById('fileB').files[0], dataB => {
+            surveyA = dataA;
+            surveyB = dataB;
+            computeDiff();
+            renderLists();
+            renderSentiment();
+            renderVenn();
+            document.getElementById('mainContent').classList.remove('opacity-50');
+            document.getElementById('loadBtn').disabled = false;
+          });
+        });
+      }
+
+      // UI mode switching
+      let modes = ['lists','sentiment','venn'];
+      let modeIx = 0;
+      function setMode(ix) {
+        modeIx = (ix+modes.length)%modes.length;
+        modes.forEach((m, i) => {
+          document.getElementById('mode-'+m).classList.toggle('hidden', i!==modeIx);
+          // desktop tab highlight
+          document.querySelectorAll('.mode-tab').forEach(b => {
+            if (b.dataset.mode === m)
+              b.classList.toggle('active', i===modeIx);
+            else
+              b.classList.remove('active');
+          });
+        });
+      }
+      // Mobile: swipe to change mode
+      function setupMobileSwipe() {
+        let touchStartX = 0, moved = false;
+        const el = document.getElementById('comparisonModes');
+        el.addEventListener('touchstart', e => {
+          if (e.touches.length!==1) return;
+          touchStartX = e.touches[0].clientX;
+          moved = false;
+        });
+        el.addEventListener('touchmove', e => {
+          moved = true;
+        });
+        el.addEventListener('touchend', e => {
+          if (!moved || e.changedTouches.length!==1) return;
+          let dx = e.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(dx) > 50) {
+            if (dx < 0) setMode(modeIx+1);
+            else setMode(modeIx-1);
+          }
+        });
+      }
+      // Desktop: tab click
+      function setupTabs() {
+        document.querySelectorAll('.mode-tab').forEach((b,ix) => {
+          b.onclick = ()=>setMode(ix);
+        });
+      }
+
+      // Dark/Light mode toggle
+      function setupThemeToggle() {
+        const html = document.documentElement;
+        const btn = document.getElementById('themeToggle');
+        btn.onclick = ()=>{
+          if (html.dataset.theme === 'light') html.dataset.theme='dark';
+          else html.dataset.theme='light';
+          // Redraw canvases
+          renderSentiment(); renderVenn();
+        };
+      }
+
+      // Enable/disable load button based on files
+      function setupFileInputs() {
+        const filesChanged = ()=>{
+          const okA = document.getElementById('fileA').files.length;
+          const okB = document.getElementById('fileB').files.length;
+          document.getElementById('loadBtn').disabled = !(okA && okB);
+          document.getElementById('mainContent').classList.toggle('opacity-50', !(okA && okB));
+        };
+        document.getElementById('fileA').addEventListener('change',filesChanged);
+        document.getElementById('fileB').addEventListener('change',filesChanged);
+      }
+
+      // On load
+      window.addEventListener('DOMContentLoaded', ()=>{
+        // Initial state
+        setMode(0);
+        setupTabs();
+        setupMobileSwipe();
+        setupThemeToggle();
+        setupFileInputs();
+        document.getElementById('loadBtn').onclick = handleLoadBtn;
+        document.getElementById('mainContent').classList.add('opacity-50');
+      });
+    </script>
+  </body>
+</html>
+```
+**Usage Notes:**
+- **Upload Section:** Upload two JSON files (see "Survey data format" in the code comments for expected structure).
+- **Modes:** On mobile, swipe left/right to switch between responses, sentiment, and overlap. On desktop, click the tabs.
+- **Lists:** Synchronized scrolling, color highlights for overlap/unique responses.
+- **Radial meters:** Visualize average sentiment for each dataset.
+- **Venn diagram:** Visualizes overlap and unique response counts.
+- **Theme:** Toggle light/dark mode via the sun/moon button.
+- **Design:** Flat, split-complementary palette, mobile-first responsive layout.
+- **All calculations are client-side.** No server, no frameworks.

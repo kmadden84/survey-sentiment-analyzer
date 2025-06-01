@@ -13,15 +13,15 @@
   },
   {
     "id": "resp_102",
-    "How satisfied are you with our customer service?": "Excellent customer service! Staff was knowledgeable and went above and beyond.",
-    "What do you think about our product quality?": "Outstanding quality! Product works flawlessly and looks great.",
-    "How would you rate your overall experience with our company?": "Fantastic experience from start to finish. Highly recommend!",
-    "Do you find our pricing reasonable?": "Great value for money. Quality justifies the price completely.",
-    "How easy was it to navigate our website?": "Website is intuitive and well-designed. Shopping was a pleasure.",
-    "Would you purchase from us again?": "Absolutely! Already planning my next order.",
-    "How was your delivery experience?": "Super fast delivery and perfect packaging. Very impressed!",
-    "What are your thoughts on our return policy?": "Generous return policy shows confidence in their products.",
-    "sentiment_score": 0.82
+    "How satisfied are you with our customer service?": "Customer service was unprofessional and couldn't solve my problem at all.",
+    "What do you think about our product quality?": "Poor quality product that doesn't work as advertised. Very disappointed.",
+    "How would you rate your overall experience with our company?": "Extremely frustrating experience. Nothing went right from start to finish.",
+    "Do you find our pricing reasonable?": "Completely overpriced for such low quality. Terrible value for money.",
+    "How easy was it to navigate our website?": "Website is confusing and poorly designed. Couldn't find anything easily.",
+    "Would you purchase from us again?": "Absolutely not! Looking for better alternatives immediately.",
+    "How was your delivery experience?": "Delivery was late and the package was in poor condition when it arrived.",
+    "What are your thoughts on our return policy?": "Return policy is unfair and makes it nearly impossible to get refunds.",
+    "sentiment_score": 0.18
   },
   {
     "id": "resp_103",
