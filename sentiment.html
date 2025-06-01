@@ -133,32 +133,29 @@
         background: rgb(148 163 184 / 0.5);
       }
       
-      /* Question select dropdown - proper text overflow handling */
+      /* Question select dropdown - proper text handling */
       #question-select {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
       }
       
+      /* Dropdown options should show full text when opened */
       #question-select option {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        max-width: 100%;
-        padding-right: 8px; /* Extra padding to prevent cutoff */
+        white-space: normal; /* Allow text wrapping in dropdown options */
+        word-wrap: break-word;
+        overflow: visible;
+        padding: 8px 12px;
+        line-height: 1.4;
+        min-height: auto;
       }
       
-      /* Mobile specific improvements for select dropdown */
+      /* Mobile specific improvements */
       @media (max-width: 767px) {
-        #question-select {
-          font-size: 14px;
-          line-height: 1.3;
-        }
-        
         #question-select option {
           font-size: 14px;
-          line-height: 1.3;
-          padding: 4px 8px;
+          padding: 10px 12px;
+          line-height: 1.4;
         }
       }
       
@@ -1147,31 +1144,11 @@
       }
       
       if (commonQuestions.length > 0) {
-        // Dynamic character limit based on screen size
-        const isMobile = window.innerWidth < 768;
-        const charLimit = isMobile ? 35 : 60; // Shorter limit for mobile
-        
         commonQuestions.forEach(q => {
           const option = document.createElement('option');
           option.value = q;
-          
-          // Smart truncation that tries to break at word boundaries
-          if (q.length > charLimit) {
-            const truncated = q.substring(0, charLimit);
-            const lastSpace = truncated.lastIndexOf(' ');
-            
-            // If we can break at a word boundary and it's not too short, do it
-            if (lastSpace > charLimit * 0.7) {
-              option.textContent = truncated.substring(0, lastSpace) + '...';
-            } else {
-              option.textContent = truncated + '...';
-            }
-          } else {
-            option.textContent = q;
-          }
-          
-          // Add full question as title attribute for tooltip
-          option.title = q;
+          // Show full text in dropdown options - no truncation
+          option.textContent = q;
           select.appendChild(option);
         });
         select.disabled = false;
@@ -2172,22 +2149,6 @@
           }
         });
         
-        // Window resize listener to update question dropdown truncation
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-          try {
-            // Debounce resize events
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-              // Only update if we have questions loaded
-              if (hasData()) {
-                updateQuestionSelect();
-              }
-            }, 250);
-          } catch (error) {
-            console.error('Error handling window resize:', error);
-          }
-        });
 
         ;
         
