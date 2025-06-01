@@ -133,6 +133,35 @@
         background: rgb(148 163 184 / 0.5);
       }
       
+      /* Question select dropdown - proper text overflow handling */
+      #question-select {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      
+      #question-select option {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 100%;
+        padding-right: 8px; /* Extra padding to prevent cutoff */
+      }
+      
+      /* Mobile specific improvements for select dropdown */
+      @media (max-width: 767px) {
+        #question-select {
+          font-size: 14px;
+          line-height: 1.3;
+        }
+        
+        #question-select option {
+          font-size: 14px;
+          line-height: 1.3;
+          padding: 4px 8px;
+        }
+      }
+      
       /* Flat design transitions */
       * {
         transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
@@ -1118,10 +1147,31 @@
       }
       
       if (commonQuestions.length > 0) {
+        // Dynamic character limit based on screen size
+        const isMobile = window.innerWidth < 768;
+        const charLimit = isMobile ? 35 : 60; // Shorter limit for mobile
+        
         commonQuestions.forEach(q => {
           const option = document.createElement('option');
           option.value = q;
-          option.textContent = q.length > 60 ? q.substring(0, 60) + '...' : q;
+          
+          // Smart truncation that tries to break at word boundaries
+          if (q.length > charLimit) {
+            const truncated = q.substring(0, charLimit);
+            const lastSpace = truncated.lastIndexOf(' ');
+            
+            // If we can break at a word boundary and it's not too short, do it
+            if (lastSpace > charLimit * 0.7) {
+              option.textContent = truncated.substring(0, lastSpace) + '...';
+            } else {
+              option.textContent = truncated + '...';
+            }
+          } else {
+            option.textContent = q;
+          }
+          
+          // Add full question as title attribute for tooltip
+          option.title = q;
           select.appendChild(option);
         });
         select.disabled = false;
@@ -1225,7 +1275,7 @@
 
     function setupSliderEventListeners() {
       // No longer needed - using pure CSS scrolling
-      console.log('✅ Using pure CSS scrolling - no JavaScript event listeners needed');
+      ;
     }
 
     function renderAllViews() {
@@ -2074,9 +2124,6 @@
           }
         });
         
-        // Touch navigation with error handling - simplified for CSS scrolling
-        // elements.viewContainer?.addEventListener('touchstart', handleTouchStart, { passive: true });
-        // elements.viewContainer?.addEventListener('touchend', handleTouchEnd, { passive: true });
         
         // Theme toggle with validation
         elements.themeToggle?.addEventListener('click', () => {
@@ -2125,16 +2172,24 @@
           }
         });
         
-        // Set up slider event listeners with delay for DOM readiness
-        // setTimeout(() => {
-        //   try {
-        //     setupSliderEventListeners();
-        //   } catch (error) {
-        //     console.error('Error setting up slider listeners:', error);
-        //   }
-        // }, 500);
-        
-        console.log('✅ Event listeners set up successfully');
+        // Window resize listener to update question dropdown truncation
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+          try {
+            // Debounce resize events
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+              // Only update if we have questions loaded
+              if (hasData()) {
+                updateQuestionSelect();
+              }
+            }, 250);
+          } catch (error) {
+            console.error('Error handling window resize:', error);
+          }
+        });
+
+        ;
         
       } catch (error) {
         console.error('Critical error setting up event listeners:', error);
@@ -2149,7 +2204,7 @@
     // Initialize Application with comprehensive error handling
     const init = () => {
       try {
-        console.log('🚀 Initializing Survey Comparator...');
+        ;
         
         // Initialize theme first (lowest risk)
         initializeTheme();
@@ -2166,7 +2221,7 @@
         switchView('responses');
         updateViews();
         
-        console.log('✅ Survey Comparator initialized successfully');
+        ;
         
       } catch (error) {
         console.error('❌ Critical initialization error:', error);
