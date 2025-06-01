@@ -251,6 +251,25 @@
         scroll-margin-left: 0;
       }
       
+      /* Desktop responsive: allow content to expand beyond min-height */
+      @media (min-width: 768px) {
+        .view-slider {
+          overflow-x: hidden; /* Hide horizontal scroll on desktop since we use tabs */
+          display: block; /* Change from flex to block to allow natural height */
+        }
+        
+        .view-slide {
+          min-height: auto;
+          height: auto;
+          flex: none; /* Reset flex for desktop */
+          display: none !important; /* Hide all slides by default with !important */
+        }
+        
+        .view-slide.active {
+          display: block !important; /* Show only the active slide with !important */
+        }
+      }
+      
       /* Remove drag cursor since we're not using JS drag */
       .view-slider {
         cursor: default;
@@ -553,7 +572,7 @@
       </nav>
 
       <!-- View Container -->
-      <div id="view-container" class="relative min-h-[400px] flat-card border border-surface-200 dark:border-surface-700 overflow-hidden" role="tabpanel" aria-live="polite" aria-atomic="false">
+      <div id="view-container" class="relative min-h-[400px] flat-card border border-surface-200 dark:border-surface-700 md:min-h-0" role="tabpanel" aria-live="polite" aria-atomic="false">
         
         <!-- Empty State -->
         <div id="empty-state" class="flex flex-col items-center justify-center h-96 text-center p-8" role="status" aria-live="polite">
@@ -575,7 +594,7 @@
 
         <!-- Slider Container -->
         <div id="view-slider" class="view-slider hidden" role="tabpanel" aria-label="Analysis views">
-          <div id="responses-view" class="view-slide" role="tabpanel" aria-labelledby="responses-tab" tabindex="0">
+          <div id="responses-view" class="view-slide active" role="tabpanel" aria-labelledby="responses-tab" tabindex="0">
             <!-- Responses content will be inserted here -->
           </div>
           <div id="sentiment-view" class="view-slide" role="tabpanel" aria-labelledby="sentiment-tab" tabindex="0">
@@ -1884,13 +1903,30 @@
     function switchView(viewName) {
       if (state.currentView === viewName) return;
       
+      console.log('Switching to view:', viewName); // Debug log
+      
       state.currentView = viewName;
       
       // Update all navigation indicators
       updateNavigationIndicators();
       
-      // Simply scroll to the new view - CSS handles the rest
-      scrollToCurrentView();
+      // Desktop: manage active class for view slides
+      const slides = document.querySelectorAll('.view-slide');
+      slides.forEach(slide => {
+        slide.classList.remove('active');
+        console.log('Removed active from:', slide.id); // Debug log
+      });
+      
+      const activeSlide = document.getElementById(`${viewName}-view`);
+      if (activeSlide) {
+        activeSlide.classList.add('active');
+        console.log('Added active to:', activeSlide.id); // Debug log
+      }
+      
+      // Mobile: scroll to the new view - CSS handles the rest
+      if (window.innerWidth < 768) {
+        scrollToCurrentView();
+      }
     }
 
     // Touch/Swipe Navigation - simple mobile support only
@@ -2461,8 +2497,8 @@
         }, 200);
         
         // Initialize view state
-        switchView('responses');
-        updateViews();
+        updateViews(); // Render content first
+        switchView('responses'); // Then set active state
         
         ;
         
