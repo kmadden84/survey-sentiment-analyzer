@@ -1197,11 +1197,19 @@
         });
         select.disabled = false;
         
-        // Auto-select first question if none selected
-        if (!state.selectedQuestion && commonQuestions.length > 0) {
-          state.selectedQuestion = commonQuestions[0];
-          select.value = state.selectedQuestion;
-        }
+        // Always auto-select and display the first question
+        const firstQuestion = commonQuestions[0];
+        state.selectedQuestion = firstQuestion;
+        select.value = firstQuestion;
+        
+        // Announce the auto-selection to screen readers
+        announceToScreenReader(`Automatically selected question: ${firstQuestion.substring(0, 50)}${firstQuestion.length > 50 ? '...' : ''}`);
+        
+        // Ensure views are updated with the selected question
+        setTimeout(() => {
+          updateViews();
+        }, 50);
+        
       } else {
         select.innerHTML = `<option value="">${hasData() ? "No common questions found" : "Upload datasets to see questions"}</option>`;
         select.disabled = true;
@@ -2146,7 +2154,6 @@
             if (elements.file1) elements.file1.value = '';
             elements.file1Info?.classList.add('hidden');
             updateQuestionSelect();
-            updateViews();
           } catch (error) {
             console.error('Error removing file 1:', error);
           }
@@ -2158,7 +2165,6 @@
             if (elements.file2) elements.file2.value = '';
             elements.file2Info?.classList.add('hidden');
             updateQuestionSelect();
-            updateViews();
           } catch (error) {
             console.error('Error removing file 2:', error);
           }
