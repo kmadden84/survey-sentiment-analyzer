@@ -1,0 +1,13 @@
+{
+  "responses": [
+    {
+      "id": "resp_001",
+      "feedback": "This JSON file got cut off in the middle of processing..."
+      "sentiment_score": 0.75
+    },
+    {
+      "id": "resp_002",
+      "feedback": "This response is incomplete"
+    }
+  ]
+} 

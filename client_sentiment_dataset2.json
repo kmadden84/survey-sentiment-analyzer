@@ -1,0 +1,50 @@
+[
+  {
+    "id": "resp_101",
+    "How satisfied are you with our customer service?": "Had to wait 2 hours on hold and the agent was rude. Worst customer service ever!",
+    "What do you think about our product quality?": "Product quality meets basic expectations. No major complaints.",
+    "How would you rate your overall experience with our company?": "Mixed feelings. Some things were good, others not so much. Average experience.",
+    "Do you find our pricing reasonable?": "Way too expensive for what you get. Overpriced compared to competitors.",
+    "How easy was it to navigate our website?": "Website is functional but could use some user experience improvements.",
+    "Would you purchase from us again?": "Probably not. There are better options available elsewhere.",
+    "How was your delivery experience?": "Delivery was delayed but the package arrived in good condition eventually.",
+    "What are your thoughts on our return policy?": "Return policy is terrible! Too many restrictions and complicated process.",
+    "sentiment_score": 0.25
+  },
+  {
+    "id": "resp_102",
+    "How satisfied are you with our customer service?": "Customer service was slow to respond and not very knowledgeable about the products.",
+    "What do you think about our product quality?": "Average quality at best. Nothing impressive, just basic functionality.",
+    "How would you rate your overall experience with our company?": "Disappointing overall. Expected much better based on reviews.",
+    "Do you find our pricing reasonable?": "Pricing is fair and competitive with other similar companies.",
+    "How easy was it to navigate our website?": "Website needs major improvements. Hard to find what you're looking for.",
+    "Would you purchase from us again?": "Maybe, but only if significant improvements are made to service.",
+    "How was your delivery experience?": "Delivery took longer than expected and tracking information was poor.",
+    "What are your thoughts on our return policy?": "Return policy is confusing and has too many conditions.",
+    "sentiment_score": 0.35
+  },
+  {
+    "id": "resp_103",
+    "How satisfied are you with our customer service?": "Service was acceptable but nothing special. Got the help I needed eventually.",
+    "What do you think about our product quality?": "Product quality meets basic expectations. No major complaints.",
+    "How would you rate your overall experience with our company?": "It was an okay experience. Neither great nor terrible.",
+    "Do you find our pricing reasonable?": "Pricing is fair and competitive with other similar companies.",
+    "How easy was it to navigate our website?": "Website is functional but could use some user experience improvements.",
+    "Would you purchase from us again?": "I might consider it depending on what alternatives are available.",
+    "How was your delivery experience?": "Delivery was on time and package was intact. Standard service.",
+    "What are your thoughts on our return policy?": "Return policy is standard for the industry. Nothing remarkable.",
+    "sentiment_score": 0.50
+  },
+  {
+    "id": "resp_104",
+    "How satisfied are you with our customer service?": "Poor customer service experience. Staff seemed uninterested in helping.",
+    "What do you think about our product quality?": "Quality is below expectations for the price point. Feels cheap.",
+    "How would you rate your overall experience with our company?": "Very unsatisfying experience. Multiple issues throughout the process.",
+    "Do you find our pricing reasonable?": "Overpriced for the quality received. Not good value for money.",
+    "How easy was it to navigate our website?": "Website needs major improvements. Hard to find what you're looking for.",
+    "Would you purchase from us again?": "No, I will look for alternatives with better service and quality.",
+    "How was your delivery experience?": "Package was damaged during delivery and it took forever to resolve.",
+    "What are your thoughts on our return policy?": "Return policy is customer-unfriendly with unreasonable restrictions.",
+    "sentiment_score": 0.15
+  }
+] 

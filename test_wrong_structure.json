@@ -1,0 +1,14 @@
+{
+  "this": "is valid JSON",
+  "but": ["completely", "wrong", "structure"],
+  "for": {
+    "our": "application",
+    "expects": {
+      "array": "of survey responses",
+      "not": "this random object"
+    }
+  },
+  "numbers": [1, 2, 3, 4, 5],
+  "boolean": true,
+  "null_value": null
+} 

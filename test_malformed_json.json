@@ -1,0 +1,24 @@
+[
+  {
+    "id": "resp_001",
+    "question1": "This response is missing a closing bracket",
+    "sentiment_score": 0.75,
+  },
+  {
+    "id": "resp_002"
+    "question1": "This response is missing a comma after the id field"
+    "sentiment_score": 0.80,
+  },
+  {
+    "id": "resp_003",
+    "question1": "This response has an extra trailing comma",
+    "sentiment_score": 0.65,
+  },
+  // This is a comment which is not valid in JSON
+  {
+    "id": "resp_004",
+    "question1": 'This uses single quotes which is invalid JSON',
+    "sentiment_score": undefined,
+  }
+  // Missing closing bracket for the array
+] 

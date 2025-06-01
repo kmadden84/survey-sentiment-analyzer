@@ -1,0 +1,13 @@
+This is just plain text, not JSON at all!
+
+Some sample data:
+Customer ID: 12345
+Feedback: Great service
+Rating: 5 stars
+
+Another customer:
+ID: 67890
+Comment: Could be better
+Score: 3/5
+
+This should trigger a JSON parsing error when uploaded. 
