@@ -198,8 +198,7 @@
       
       /* Synchronized scrolling lists */
       .sync-scroll-container {
-        overflow-y: auto;
-        max-height: 300px;
+        overflow-y: visible; /* Allow content to show without scrolling */
         cursor: grab;
         user-select: none;
       }
@@ -209,7 +208,6 @@
       }
       
       .sync-scroll-item {
-        min-height: 60px;
         display: flex;
         align-items: center;
         padding: 12px;
@@ -225,48 +223,40 @@
         border-bottom-color: #374151;
       }
       
-      /* Pure CSS horizontal scrolling - no JavaScript needed */
+      /* Mobile views - no scrolling, just show active view */
       .view-slider {
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        display: block;
+        overflow: hidden;
       }
       
       .view-slider::-webkit-scrollbar {
         display: none;
       }
       
+      /* Each view takes full width and natural height - mobile shows one at a time */
       .view-slide {
-        flex: 0 0 100%;
-        scroll-snap-align: start;
-        min-height: 400px;
+        width: 100%;
+        display: none;
       }
       
-      /* CSS-only navigation with scroll-behavior */
-      .view-slide {
-        scroll-margin-left: 0;
+      .view-slide.active {
+        display: block;
       }
       
-      /* Desktop responsive: allow content to expand beyond min-height */
+      /* Desktop responsive */
       @media (min-width: 768px) {
         .view-slider {
-          overflow-x: hidden; /* Hide horizontal scroll on desktop since we use tabs */
-          display: block; /* Change from flex to block to allow natural height */
+          overflow-x: hidden;
+          display: block;
         }
         
         .view-slide {
-          min-height: auto;
-          height: auto;
-          flex: none; /* Reset flex for desktop */
-          display: none !important; /* Hide all slides by default with !important */
+          display: none !important;
+          width: auto;
         }
         
         .view-slide.active {
-          display: block !important; /* Show only the active slide with !important */
+          display: block !important;
         }
       }
       
@@ -393,7 +383,7 @@
       <header class="flex items-center justify-between mb-6">
         <div>
           <h2 id="upload-heading" class="text-lg font-semibold text-slate-900 dark:text-white">Data Upload</h2>
-          <p class="text-sm text-slate-600 dark:text-slate-400">Upload your survey datasets in JSON format</p>
+          <p class="text-sm text-slate-600 dark:text-slate-400">Upload your survey datasets in JSON format or use sample data</p>
         </div>
         <div class="flex items-center space-x-2">
           <div id="upload-status" class="hidden" role="status" aria-live="polite" aria-atomic="true">
@@ -404,6 +394,28 @@
           </div>
         </div>
       </header>
+
+      <!-- Sample Data Section -->
+      <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100">Quick Start with Sample Data</h3>
+          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <p class="text-xs text-blue-800 dark:text-blue-200 mb-3">Try the application immediately with our prepared sample datasets.</p>
+        <div class="flex flex-wrap gap-2">
+          <button id="load-sample-customer-feedback" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Customer Feedback Survey
+          </button>
+          <button id="load-sample-employee-satisfaction" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Employee Satisfaction
+          </button>
+          <button id="load-sample-product-reviews" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Product Reviews
+          </button>
+        </div>
+      </div>
 
       <!-- File Upload Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6" role="group" aria-labelledby="upload-heading">
@@ -563,16 +575,16 @@
         <div class="mb-3">
           <label for="mobile-view-select" class="sr-only">Select analysis view</label>
           <select id="mobile-view-select" class="w-full px-3 py-2 bg-white dark:bg-surface-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm" aria-describedby="mobile-view-help">
-            <option value="responses">📊 Response Distributions</option>
-            <option value="sentiment">💭 Sentiment Analysis</option>
-            <option value="overlap">🔄 Sentiment Overlap</option>
+            <option value="responses">Response Distributions</option>
+            <option value="sentiment">Sentiment Analysis</option>
+            <option value="overlap">Sentiment Overlap</option>
           </select>
           <div id="mobile-view-help" class="sr-only">Use this dropdown to navigate between different analysis views</div>
         </div>
       </nav>
 
       <!-- View Container -->
-      <div id="view-container" class="relative min-h-[400px] flat-card border border-surface-200 dark:border-surface-700 md:min-h-0" role="tabpanel" aria-live="polite" aria-atomic="false">
+      <div id="view-container" class="relative flat-card border border-surface-200 dark:border-surface-700" role="tabpanel" aria-live="polite" aria-atomic="false">
         
         <!-- Empty State -->
         <div id="empty-state" class="flex flex-col items-center justify-center h-96 text-center p-8" role="status" aria-live="polite">
@@ -1307,6 +1319,9 @@
     }
 
     function scrollToCurrentView() {
+      // Disabled to allow natural content heights
+      return;
+      
       const slider = elements.viewSlider;
       if (!slider) return;
       
@@ -1355,7 +1370,7 @@
       const sentimentHtml = `
         <div class="p-6">
           <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Sentiment Analysis</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center">
             ${renderSentimentMeter(sentiment1, 'Dataset A', 'primary', state.dataset1)}
             ${renderSentimentMeter(sentiment2, 'Dataset B', 'accent1', state.dataset2)}
           </div>
@@ -1417,15 +1432,24 @@
                 <h4 class="font-medium text-slate-700 dark:text-slate-300 mb-3">Dataset A Sentiment Distribution</h4>
                 <div class="space-y-2">
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-slate-600 dark:text-slate-400">😞 Negative (0.0-0.4):</span>
+                    <div class="flex items-center space-x-2">
+                      <svg class="w-4 h-4 text-danger-600 dark:text-danger-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7 4a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                      <span class="text-sm text-slate-600 dark:text-slate-300">Negative (0.0-0.4):</span>
+                    </div>
                     <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset1.negative || 0}</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-slate-600 dark:text-slate-400">😐 Neutral (0.4-0.7):</span>
+                    <div class="flex items-center space-x-2">
+                      <svg class="w-4 h-4 text-warning-600 dark:text-warning-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-5 5a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                      <span class="text-sm text-slate-600 dark:text-slate-300">Neutral (0.4-0.7):</span>
+                    </div>
                     <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset1.neutral || 0}</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-slate-600 dark:text-slate-400">😊 Positive (0.7-1.0):</span>
+                    <div class="flex items-center space-x-2">
+                      <svg class="w-4 h-4 text-success-600 dark:text-success-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd"></path></svg>
+                      <span class="text-sm text-slate-600 dark:text-slate-300">Positive (0.7-1.0):</span>
+                    </div>
                     <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset1.positive || 0}</span>
                   </div>
                 </div>
@@ -1436,15 +1460,24 @@
                 <h4 class="font-medium text-slate-700 dark:text-slate-300 mb-3">Dataset B Sentiment Distribution</h4>
                 <div class="space-y-2">
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-slate-600 dark:text-slate-400">😞 Negative (0.0-0.4):</span>
+                    <div class="flex items-center space-x-2">
+                      <svg class="w-4 h-4 text-danger-600 dark:text-danger-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7 4a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                      <span class="text-sm text-slate-600 dark:text-slate-300">Negative (0.0-0.4):</span>
+                    </div>
                     <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset2.negative || 0}</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-slate-600 dark:text-slate-400">😐 Neutral (0.4-0.7):</span>
+                    <div class="flex items-center space-x-2">
+                      <svg class="w-4 h-4 text-warning-600 dark:text-warning-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-5 5a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                      <span class="text-sm text-slate-600 dark:text-slate-300">Neutral (0.4-0.7):</span>
+                    </div>
                     <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset2.neutral || 0}</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-sm text-slate-600 dark:text-slate-400">😊 Positive (0.7-1.0):</span>
+                    <div class="flex items-center space-x-2">
+                      <svg class="w-4 h-4 text-success-600 dark:text-success-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd"></path></svg>
+                      <span class="text-sm text-slate-600 dark:text-slate-300">Positive (0.7-1.0):</span>
+                    </div>
                     <span class="font-medium text-slate-900 dark:text-white">${overlap.sentimentBreakdown.dataset2.positive || 0}</span>
                   </div>
                 </div>
@@ -1579,7 +1612,7 @@
 
     function getPlaceholderHtml(message) {
       return `
-        <div class="flex flex-col items-center justify-center h-96 text-center p-8">
+        <div class="flex flex-col items-center justify-center py-16 text-center p-8">
           <div class="w-16 h-16 bg-slate-100 dark:bg-surface-800 rounded-full flex items-center justify-center mb-4">
             <svg class="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -1615,17 +1648,28 @@
           <h4 class="font-medium text-slate-700 dark:text-slate-300 mb-4">${title} (${responses.length} responses)</h4>
           <div class="sync-scroll-container custom-scrollbar" data-dataset="${colorTheme}">
             ${responses.map((response, index) => {
-              const sentimentColor = response.sentiment >= 0.7 ? 'text-accent1-800 dark:text-accent1-300' : 
-                                   response.sentiment >= 0.4 ? 'text-accent1-700 dark:text-accent1-400' : 
-                                   'text-accent2-700 dark:text-accent2-400';
+              const sentimentColor = response.sentiment >= 0.7 ? 'text-success-600 dark:text-success-400' : 
+                                   response.sentiment >= 0.4 ? 'text-warning-600 dark:text-warning-400' : 
+                                   'text-danger-600 dark:text-danger-400';
+              
+              // Replace emoji with icon
+              const sentimentIcon = response.sentiment >= 0.7 ? 
+                '<svg class="w-3 h-3 text-success-600 dark:text-success-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd"></path></svg>' :
+                response.sentiment >= 0.4 ? 
+                '<svg class="w-3 h-3 text-warning-600 dark:text-warning-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-5 5a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>' :
+                '<svg class="w-3 h-3 text-danger-600 dark:text-danger-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7 4a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>';
+              
               return `
-                <div class="sync-scroll-item ${bgClass} border-l-4 ${colorClass}" data-index="${index}">
+                <div class="sync-scroll-item ${bgClass} border-l-4 ${colorClass} mb-2" data-index="${index}">
                   <div class="flex-1">
                     <div class="flex items-center justify-between mb-1">
-                      <span class="text-xs font-medium text-slate-600 dark:text-slate-400">${response.id}</span>
-                      <span class="text-xs font-medium ${sentimentColor}">${(response.sentiment * 100).toFixed(0)}%</span>
+                      <span class="text-xs font-medium text-slate-600 dark:text-slate-300">${response.id}</span>
+                      <div class="flex items-center space-x-1">
+                        ${sentimentIcon}
+                        <span class="text-xs font-medium ${sentimentColor}">${(response.sentiment * 100).toFixed(0)}%</span>
+                      </div>
                     </div>
-                    <div class="text-sm text-slate-800 dark:text-slate-200">${response.answer.length > 100 ? response.answer.substring(0, 100) + '...' : response.answer}</div>
+                    <div class="text-sm text-slate-800 dark:text-slate-100">${response.answer.length > 100 ? response.answer.substring(0, 100) + '...' : response.answer}</div>
                   </div>
                 </div>
               `;
@@ -1761,9 +1805,9 @@
         sets.push({ sets: ['A', 'B'], size: intersection, label: `Common (${intersection})` });
       }
       
-      // Create the diagram
+      // Create the diagram with better sizing
       const chart = venn.VennDiagram()
-        .width(container.offsetWidth || 400)
+        .width(Math.min(container.offsetWidth || 400, 500))
         .height(300);
       
       const div = d3.select('#venn-diagram');
@@ -1806,21 +1850,62 @@
             .style('stroke-width', 2);
         });
       
-      // Style text labels
+      // Fix text positioning to prevent overlap
       div.selectAll('text')
         .style('fill', function() {
           return document.documentElement.dataset.theme === 'dark' ? '#f1f5f9' : '#334155';
         })
         .style('font-size', '12px')
         .style('font-weight', '500')
-        .style('text-anchor', 'middle');
+        .style('text-anchor', function(d) {
+          // Adjust text anchor based on which set it belongs to
+          if (d.sets.length === 1) {
+            return d.sets[0] === 'A' ? 'end' : 'start'; // A aligns right, B aligns left
+          }
+          return 'middle'; // Intersection stays centered
+        })
+        .attr('dx', function(d) {
+          // Horizontal offset to position text in correct areas
+          if (d.sets.length === 1) {
+            return d.sets[0] === 'A' ? '-15px' : '15px'; // A moves left, B moves right
+          }
+          return '0px'; // Intersection stays centered
+        })
+        .attr('dy', function(d) {
+          // Vertical positioning
+          if (d.sets.length === 1) {
+            return '0.3em'; // Keep both dataset labels at same vertical level
+          }
+          return '0.3em'; // Intersection also at same level
+        });
       
       // Handle responsive sizing
       const resizeObserver = new ResizeObserver(entries => {
-        const newWidth = entries[0].contentRect.width;
+        const newWidth = Math.min(entries[0].contentRect.width, 500);
         if (newWidth > 0) {
           chart.width(newWidth);
           div.datum(sets).call(chart);
+          
+          // Reapply text positioning after resize
+          div.selectAll('text')
+            .style('text-anchor', function(d) {
+              if (d.sets.length === 1) {
+                return d.sets[0] === 'A' ? 'end' : 'start';
+              }
+              return 'middle';
+            })
+            .attr('dx', function(d) {
+              if (d.sets.length === 1) {
+                return d.sets[0] === 'A' ? '-15px' : '15px';
+              }
+              return '0px';
+            })
+            .attr('dy', function(d) {
+              if (d.sets.length === 1) {
+                return '0.3em';
+              }
+              return '0.3em';
+            });
         }
       });
       
@@ -1903,7 +1988,7 @@
     function switchView(viewName) {
       if (state.currentView === viewName) return;
       
-      console.log('Switching to view:', viewName); // Debug log
+      ; // Debug log
       
       state.currentView = viewName;
       
@@ -1914,13 +1999,13 @@
       const slides = document.querySelectorAll('.view-slide');
       slides.forEach(slide => {
         slide.classList.remove('active');
-        console.log('Removed active from:', slide.id); // Debug log
+        ; // Debug log
       });
       
       const activeSlide = document.getElementById(`${viewName}-view`);
       if (activeSlide) {
         activeSlide.classList.add('active');
-        console.log('Added active to:', activeSlide.id); // Debug log
+        ; // Debug log
       }
       
       // Mobile: scroll to the new view - CSS handles the rest
@@ -2047,6 +2132,9 @@
     }
 
     function smoothSnapToNearestView() {
+      // Disabled - we want natural content heights, not forced snapping
+      return;
+      
       const slider = elements.viewSlider;
       if (!slider) return;
       
@@ -2349,7 +2437,7 @@
         });
         
         
-        // Theme toggle with validation
+        // Theme and help modal with safety checks
         elements.themeToggle?.addEventListener('click', () => {
           try {
             toggleTheme();
@@ -2382,6 +2470,27 @@
             if (e.target === elements.helpModal) hideHelp();
           } catch (error) {
             console.error('Error handling modal click:', error);
+          }
+        });
+        
+        // Sample data loading with error handling
+        const sampleDataButtons = [
+          'load-sample-customer-feedback',
+          'load-sample-employee-satisfaction', 
+          'load-sample-product-reviews'
+        ];
+        
+        sampleDataButtons.forEach(buttonId => {
+          const button = document.getElementById(buttonId);
+          if (button) {
+            button.addEventListener('click', () => {
+              try {
+                const datasetType = buttonId.replace('load-sample-', '').replace(/-/g, ''); // Fix naming conversion
+                loadSampleData(datasetType);
+              } catch (error) {
+                console.error('Error loading sample data:', error);
+              }
+            });
           }
         });
         
@@ -2466,7 +2575,6 @@
             console.error('Error handling keyboard shortcut:', error);
           }
         });
-        
 
         ;
         
@@ -2528,6 +2636,251 @@
       // DOM already loaded
       init();
     }
+
+    // Sample Data
+    const sampleData = {
+      customerFeedback: {
+        dataset1: [
+          {
+            "id": "cf_001",
+            "Overall Experience": "The service was excellent and exceeded my expectations",
+            "Product Quality": "High quality materials and great attention to detail",
+            "Customer Support": "Responsive and helpful support team",
+            "sentiment_score": 0.85
+          },
+          {
+            "id": "cf_002", 
+            "Overall Experience": "Average experience, nothing special but acceptable",
+            "Product Quality": "Standard quality, meets basic requirements",
+            "Customer Support": "Support was slow to respond but eventually helpful",
+            "sentiment_score": 0.55
+          },
+          {
+            "id": "cf_003",
+            "Overall Experience": "Disappointed with the service quality and delivery",
+            "Product Quality": "Poor quality, did not meet expectations",
+            "Customer Support": "Unresponsive and unhelpful support",
+            "sentiment_score": 0.25
+          },
+          {
+            "id": "cf_004",
+            "Overall Experience": "Great experience overall, would recommend",
+            "Product Quality": "Excellent build quality and design",
+            "Customer Support": "Professional and knowledgeable staff",
+            "sentiment_score": 0.82
+          },
+          {
+            "id": "cf_005",
+            "Overall Experience": "Mixed feelings about the service",
+            "Product Quality": "Quality varies between different products",
+            "Customer Support": "Hit or miss with support responses",
+            "sentiment_score": 0.48
+          }
+        ],
+        dataset2: [
+          {
+            "id": "cf_101",
+            "Overall Experience": "Outstanding service that went above and beyond",
+            "Product Quality": "Premium quality with excellent craftsmanship",
+            "Customer Support": "Exceptional support with quick resolution",
+            "sentiment_score": 0.92
+          },
+          {
+            "id": "cf_102",
+            "Overall Experience": "Satisfactory service with room for improvement",
+            "Product Quality": "Good quality but could be better for the price",
+            "Customer Support": "Adequate support, could be more proactive",
+            "sentiment_score": 0.61
+          },
+          {
+            "id": "cf_103",
+            "Overall Experience": "Very poor experience, multiple issues encountered",
+            "Product Quality": "Defective product with multiple problems",
+            "Customer Support": "Terrible support, no resolution provided",
+            "sentiment_score": 0.18
+          },
+          {
+            "id": "cf_104",
+            "Overall Experience": "Solid experience with reliable service",
+            "Product Quality": "Consistent quality across all products",
+            "Customer Support": "Reliable and efficient support team",
+            "sentiment_score": 0.76
+          },
+          {
+            "id": "cf_105",
+            "Overall Experience": "Neutral experience, met basic expectations",
+            "Product Quality": "Average quality for the price point",
+            "Customer Support": "Standard support without extras",
+            "sentiment_score": 0.52
+          }
+        ]
+      },
+      
+      employeeSatisfaction: {
+        dataset1: [
+          {
+            "id": "es_001",
+            "Job Satisfaction": "I love working here and feel valued by management",
+            "Work-Life Balance": "Great flexibility and understanding of personal needs",
+            "Career Development": "Many opportunities for growth and advancement",
+            "sentiment_score": 0.88
+          },
+          {
+            "id": "es_002",
+            "Job Satisfaction": "The work is okay but can be monotonous sometimes",
+            "Work-Life Balance": "Decent balance but occasional overtime is required",
+            "Career Development": "Some training available but limited advancement",
+            "sentiment_score": 0.58
+          },
+          {
+            "id": "es_003",
+            "Job Satisfaction": "Unhappy with management decisions and workplace culture",
+            "Work-Life Balance": "Poor balance, too much stress and long hours",
+            "Career Development": "No clear path for advancement or skill development",
+            "sentiment_score": 0.22
+          },
+          {
+            "id": "es_004",
+            "Job Satisfaction": "Very satisfied with my role and responsibilities",
+            "Work-Life Balance": "Excellent work-life balance with flexible schedules",
+            "Career Development": "Regular training and clear promotion pathways",
+            "sentiment_score": 0.84
+          }
+        ],
+        dataset2: [
+          {
+            "id": "es_101",
+            "Job Satisfaction": "Extremely satisfied with the company culture and values",
+            "Work-Life Balance": "Perfect balance with remote work options",
+            "Career Development": "Extensive training programs and mentorship",
+            "sentiment_score": 0.95
+          },
+          {
+            "id": "es_102",
+            "Job Satisfaction": "Generally satisfied but some areas need improvement",
+            "Work-Life Balance": "Good balance most of the time",
+            "Career Development": "Opportunities exist but could be more structured",
+            "sentiment_score": 0.67
+          },
+          {
+            "id": "es_103",
+            "Job Satisfaction": "Frustrated with lack of recognition and support",
+            "Work-Life Balance": "Constantly working overtime with no compensation",
+            "Career Development": "Stagnant role with no development opportunities",
+            "sentiment_score": 0.19
+          }
+        ]
+      },
+      
+      productReviews: {
+        dataset1: [
+          {
+            "id": "pr_001",
+            "Product Performance": "Excellent performance, exceeds all expectations",
+            "Value for Money": "Great value considering the quality and features",
+            "User Experience": "Intuitive design and easy to use interface",
+            "sentiment_score": 0.89
+          },
+          {
+            "id": "pr_002",
+            "Product Performance": "Average performance with some minor issues",
+            "Value for Money": "Reasonable price but could offer more features",
+            "User Experience": "Learning curve is steep but manageable",
+            "sentiment_score": 0.54
+          },
+          {
+            "id": "pr_003",
+            "Product Performance": "Poor performance with frequent crashes and bugs",
+            "Value for Money": "Overpriced for what it delivers",
+            "User Experience": "Confusing interface and poor documentation",
+            "sentiment_score": 0.28
+          },
+          {
+            "id": "pr_004",
+            "Product Performance": "Solid performance with reliable functionality",
+            "Value for Money": "Fair pricing for the feature set",
+            "User Experience": "Clean interface but could be more intuitive",
+            "sentiment_score": 0.71
+          }
+        ],
+        dataset2: [
+          {
+            "id": "pr_101",
+            "Product Performance": "Outstanding performance with cutting-edge features",
+            "Value for Money": "Premium pricing but worth every penny",
+            "User Experience": "Seamless and delightful user experience",
+            "sentiment_score": 0.93
+          },
+          {
+            "id": "pr_102",
+            "Product Performance": "Good performance but missing some key features",
+            "Value for Money": "Decent value but competitors offer more",
+            "User Experience": "User-friendly but lacks customization options",
+            "sentiment_score": 0.63
+          },
+          {
+            "id": "pr_103",
+            "Product Performance": "Terrible performance with constant issues",
+            "Value for Money": "Complete waste of money",
+            "User Experience": "Frustrating and time-consuming to use",
+            "sentiment_score": 0.15
+          }
+        ]
+      }
+    };
+
+    // Load Sample Data Functions
+    const loadSampleData = (datasetType) => {
+      try {
+        showProcessing(true);
+        
+        // Convert button names to data keys correctly
+        let dataKey;
+        switch(datasetType) {
+          case 'customerfeedback':
+            dataKey = 'customerFeedback';
+            break;
+          case 'employeesatisfaction':
+            dataKey = 'employeeSatisfaction';
+            break;
+          case 'productreviews':
+            dataKey = 'productReviews';
+            break;
+          default:
+            console.error('Unknown dataset type:', datasetType);
+            return;
+        }
+        
+        const data = sampleData[dataKey];
+        if (!data) {
+          console.error('Sample dataset not found:', dataKey);
+          return;
+        }
+        
+        // Load dataset 1
+        const { data: processedData1, issues: issues1 } = validateAndTransformData(data.dataset1, `${dataKey}_dataset1.json`);
+        state.dataset1 = processedData1;
+        state.dataFormatIssues.dataset1 = issues1;
+        showFileInfo(1, `${dataKey}_dataset1.json (Sample)`, issues1);
+        
+        // Load dataset 2
+        const { data: processedData2, issues: issues2 } = validateAndTransformData(data.dataset2, `${dataKey}_dataset2.json`);
+        state.dataset2 = processedData2;
+        state.dataFormatIssues.dataset2 = issues2;
+        showFileInfo(2, `${dataKey}_dataset2.json (Sample)`, issues2);
+        
+        updateQuestionSelect();
+        updateViews();
+        
+        announceToScreenReader(`Loaded sample ${dataKey} datasets successfully`);
+        
+      } catch (error) {
+        console.error('Error loading sample data:', error);
+        announceToScreenReader('Error loading sample data');
+      } finally {
+        showProcessing(false);
+      }
+    };
   </script>
 </body>
 </html>
