@@ -396,12 +396,14 @@
       </header>
 
       <!-- Sample Data Section -->
-      <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div id="sample-data-section" class="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100">Quick Start with Sample Data</h3>
-          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+          <button id="close-sample-section" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 p-1" aria-label="Close sample data section">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
         <p class="text-xs text-blue-800 dark:text-blue-200 mb-3">Try the application immediately with our prepared sample datasets.</p>
         <div class="flex flex-wrap gap-2">
@@ -682,6 +684,56 @@
               <strong>Note:</strong> The app will automatically detect and convert different data formats. You'll see processing messages if any transformations are applied.
             </p>
           </div>
+          
+          <!-- Sample Data Preference Section -->
+          <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
+            <h4 class="font-medium text-slate-900 dark:text-white mb-3">Quick Start Preferences</h4>
+            <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-surface-800 rounded-lg">
+              <div>
+                <div class="text-sm font-medium text-slate-900 dark:text-white">Show Sample Data</div>
+                <div class="text-xs text-slate-600 dark:text-slate-400">Display the Quick Start section on app load</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="sample-data-toggle" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sample Data Preference Modal -->
+  <div id="sample-preference-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="sample-preference-title" aria-describedby="sample-preference-description">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+      <div class="inline-block align-bottom flat-card border border-surface-200 dark:border-surface-700 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full" role="document">
+        <div class="px-6 pt-6 pb-4">
+          <div class="flex items-center mb-4">
+            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
+              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 id="sample-preference-title" class="text-lg font-medium text-slate-900 dark:text-white">Hide Sample Data</h3>
+          </div>
+        </div>
+        
+        <div id="sample-preference-description" class="px-6 pb-6">
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Would you like to hide the sample data section on future visits? You can always re-enable it from the help menu.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <button id="sample-keep-showing" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+              Keep Showing
+            </button>
+            <button id="sample-hide-permanently" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              Hide Permanently
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -701,6 +753,56 @@
       isDragging: false,
       scrollPosition: 0,
       initialScrollLeft: 0
+    };
+
+    // Cookie Management Utilities
+    const CookieManager = {
+      set: (name, value, days = 365) => {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+      },
+      
+      get: (name) => {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+      },
+      
+      delete: (name) => {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+      }
+    };
+
+    // Sample Data Preference Management
+    const SampleDataPreferences = {
+      shouldShow: () => {
+        const preference = CookieManager.get('showSampleData');
+        return preference !== 'false'; // Default to showing unless explicitly set to false
+      },
+      
+      setShouldShow: (show) => {
+        CookieManager.set('showSampleData', show.toString(), 365);
+      },
+      
+      applySetting: () => {
+        const sampleSection = document.getElementById('sample-data-section');
+        const toggle = document.getElementById('sample-data-toggle');
+        const shouldShow = SampleDataPreferences.shouldShow();
+        
+        if (sampleSection) {
+          sampleSection.style.display = shouldShow ? 'block' : 'none';
+        }
+        
+        if (toggle) {
+          toggle.checked = shouldShow;
+        }
+      }
     };
 
     // DOM Elements with robust error handling
@@ -2473,9 +2575,97 @@
           }
         });
         
+        // Close sample data section functionality - now shows preference modal
+        const closeSampleButton = document.getElementById('close-sample-section');
+        if (closeSampleButton) {
+          closeSampleButton.addEventListener('click', () => {
+            try {
+              showSamplePreferenceModal();
+            } catch (error) {
+              console.error('Error showing sample preference modal:', error);
+            }
+          });
+        }
+        
+        // Sample preference modal event listeners
+        const sampleKeepButton = document.getElementById('sample-keep-showing');
+        const sampleHideButton = document.getElementById('sample-hide-permanently');
+        const sampleModal = document.getElementById('sample-preference-modal');
+        
+        if (sampleKeepButton) {
+          sampleKeepButton.addEventListener('click', () => {
+            try {
+              hideSamplePreferenceModal();
+              // Just close the section this time, don't change the preference
+              const sampleSection = document.getElementById('sample-data-section');
+              if (sampleSection) {
+                sampleSection.style.opacity = '0';
+                sampleSection.style.transform = 'translateY(-10px)';
+                sampleSection.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                
+                setTimeout(() => {
+                  sampleSection.style.display = 'none';
+                  announceToScreenReader('Sample data section closed');
+                }, 300);
+              }
+            } catch (error) {
+              console.error('Error keeping sample section:', error);
+            }
+          });
+        }
+        
+        if (sampleHideButton) {
+          sampleHideButton.addEventListener('click', () => {
+            try {
+              // Save preference and hide section
+              SampleDataPreferences.setShouldShow(false);
+              SampleDataPreferences.applySetting();
+              hideSamplePreferenceModal();
+              announceToScreenReader('Sample data section will be hidden on future visits');
+            } catch (error) {
+              console.error('Error hiding sample section permanently:', error);
+            }
+          });
+        }
+        
+        // Close modal when clicking backdrop
+        if (sampleModal) {
+          sampleModal.addEventListener('click', (e) => {
+            try {
+              if (e.target === sampleModal) {
+                hideSamplePreferenceModal();
+              }
+            } catch (error) {
+              console.error('Error handling modal backdrop click:', error);
+            }
+          });
+        }
+        
+        // Sample data toggle in help modal
+        const sampleToggle = document.getElementById('sample-data-toggle');
+        if (sampleToggle) {
+          sampleToggle.addEventListener('change', () => {
+            try {
+              const shouldShow = sampleToggle.checked;
+              SampleDataPreferences.setShouldShow(shouldShow);
+              SampleDataPreferences.applySetting();
+              announceToScreenReader(`Sample data section ${shouldShow ? 'enabled' : 'disabled'}`);
+            } catch (error) {
+              console.error('Error toggling sample data preference:', error);
+            }
+          });
+        }
+        
         // Keyboard shortcuts with modern event handling
         document.addEventListener('keydown', (e) => {
           try {
+            // Sample preference modal handling
+            const sampleModal = document.getElementById('sample-preference-modal');
+            if (e.key === 'Escape' && sampleModal && !sampleModal.classList.contains('hidden')) {
+              hideSamplePreferenceModal();
+              return;
+            }
+            
             // Help modal handling
             if (e.key === 'Escape' && !elements.helpModal?.classList.contains('hidden')) {
               hideHelp();
@@ -2574,6 +2764,11 @@
         
         // Initialize theme first (lowest risk)
         initializeTheme();
+        
+        // Apply sample data preferences from cookies
+        setTimeout(() => {
+          SampleDataPreferences.applySetting();
+        }, 50);
         
         // Set up event listeners (validates DOM)
         setupEventListeners();
@@ -2869,6 +3064,33 @@
         showProcessing(false);
       }
     };
+
+    // Help Modal
+    function showSamplePreferenceModal() {
+      const modal = document.getElementById('sample-preference-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Focus the "Keep Showing" button
+        const keepButton = document.getElementById('sample-keep-showing');
+        if (keepButton) {
+          keepButton.focus();
+          trapFocus(modal);
+        }
+        
+        announceToScreenReader('Sample data preference dialog opened');
+      }
+    }
+
+    function hideSamplePreferenceModal() {
+      const modal = document.getElementById('sample-preference-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        announceToScreenReader('Sample data preference dialog closed');
+      }
+    }
   </script>
 </body>
 </html>
