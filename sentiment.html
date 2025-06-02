@@ -223,40 +223,65 @@
         border-bottom-color: #374151;
       }
       
-      /* Mobile views - no scrolling, just show active view */
+      /* Mobile views - smooth sliding with CSS transforms */
       .view-slider {
         display: block;
         overflow: hidden;
+        position: relative;
+        height: auto;
       }
       
       .view-slider::-webkit-scrollbar {
         display: none;
       }
       
-      /* Each view takes full width and natural height - mobile shows one at a time */
+      /* Each view takes full width - use transforms for smooth transitions */
       .view-slide {
         width: 100%;
-        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: transform 0.3s ease-in-out;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(100%);
       }
       
       .view-slide.active {
-        display: block;
+        opacity: 1;
+        pointer-events: auto;
+        position: relative;
       }
       
-      /* Desktop responsive */
+      .view-slide.prev {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+      }
+      
+      /* Desktop responsive - disable animations */
       @media (min-width: 768px) {
         .view-slider {
           overflow-x: hidden;
           display: block;
+          position: static;
         }
         
         .view-slide {
+          position: static !important;
+          transform: none !important;
+          transition: none !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
           display: none !important;
           width: auto;
         }
         
         .view-slide.active {
           display: block !important;
+          position: static !important;
+          transform: none !important;
+          opacity: 1 !important;
         }
       }
       
@@ -748,6 +773,8 @@
       selectedQuestion: null,
       dataFormatIssues: { dataset1: [], dataset2: [] },
       touchStart: null,
+      touchStartY: null,
+      touchStartTime: null,
       isProcessing: false,
       dragStart: null,
       isDragging: false,
@@ -1366,10 +1393,60 @@
       // Use CSS-only scrolling - no complex event listeners needed
       scrollToCurrentView();
       
-      // Add simple scroll detection for navigation updates
+      // Set up initial slide positioning for mobile
       setTimeout(() => {
+        if (window.innerWidth < 768) {
+          const views = ['responses', 'sentiment', 'overlap'];
+          const currentIndex = views.indexOf(state.currentView);
+          const slides = document.querySelectorAll('.view-slide');
+          
+          slides.forEach((slide, index) => {
+            slide.classList.remove('active');
+            slide.style.transition = 'none'; // Disable transitions for initial setup
+            
+            const slideView = views[index];
+            const slideIndex = views.indexOf(slideView);
+            
+            if (slideIndex === currentIndex) {
+              // Current slide - center it and make it active
+              slide.style.transform = 'translateX(0)';
+              slide.style.opacity = '1';
+              slide.classList.add('active');
+            } else if (slideIndex < currentIndex) {
+              // Slides to the left - position off-screen left
+              slide.style.transform = 'translateX(-100%)';
+              slide.style.opacity = '0';
+            } else {
+              // Slides to the right - position off-screen right
+              slide.style.transform = 'translateX(100%)';
+              slide.style.opacity = '0';
+            }
+          });
+          
+          // Re-enable transitions after initial positioning
+          setTimeout(() => {
+            slides.forEach(slide => {
+              slide.style.transition = '';
+            });
+          }, 50);
+        } else {
+          // Desktop: ensure proper show/hide
+          const slides = document.querySelectorAll('.view-slide');
+          slides.forEach(slide => {
+            slide.classList.remove('active');
+          });
+          
+          const activeSlide = document.getElementById(`${state.currentView}-view`);
+          if (activeSlide) {
+            activeSlide.classList.add('active');
+          }
+        }
+        
         setupScrollDetection();
       }, 100);
+      
+      // Ensure navigation indicators reflect the current view state
+      updateNavigationIndicators();
     }
 
     function setupScrollDetection() {
@@ -2069,58 +2146,161 @@
     function switchView(viewName) {
       if (state.currentView === viewName) return;
       
-      ; // Debug log
-      
+      const previousView = state.currentView;
       state.currentView = viewName;
       
       // Update all navigation indicators
       updateNavigationIndicators();
       
-      // Desktop: manage active class for view slides
-      const slides = document.querySelectorAll('.view-slide');
-      slides.forEach(slide => {
-        slide.classList.remove('active');
-        ; // Debug log
-      });
-      
-      const activeSlide = document.getElementById(`${viewName}-view`);
-      if (activeSlide) {
-        activeSlide.classList.add('active');
-        ; // Debug log
-      }
-      
-      // Mobile: scroll to the new view - CSS handles the rest
+      // Handle smooth transitions for mobile
       if (window.innerWidth < 768) {
-        scrollToCurrentView();
+        const views = ['responses', 'sentiment', 'overlap'];
+        const previousIndex = views.indexOf(previousView);
+        const currentIndex = views.indexOf(viewName);
+        const isMovingRight = currentIndex > previousIndex;
+        
+        const slides = document.querySelectorAll('.view-slide');
+        const currentSlide = document.getElementById(`${viewName}-view`);
+        const previousSlide = document.getElementById(`${previousView}-view`);
+        
+        if (currentSlide && previousSlide) {
+          // Reset all slides to their default positions
+          slides.forEach((slide, index) => {
+            slide.classList.remove('active');
+            const slideView = views[index];
+            const slideIndex = views.indexOf(slideView);
+            
+            // Position slides relative to the NEW current view
+            if (slideIndex < currentIndex) {
+              // Slides to the left of current
+              slide.style.transform = 'translateX(-100%)';
+              slide.style.opacity = '0';
+            } else if (slideIndex > currentIndex) {
+              // Slides to the right of current  
+              slide.style.transform = 'translateX(100%)';
+              slide.style.opacity = '0';
+            } else {
+              // Current slide
+              slide.style.transform = 'translateX(0)';
+              slide.style.opacity = '1';
+            }
+          });
+          
+          // Set up the animation
+          if (isMovingRight) {
+            // Moving forward (swipe left): new slide comes from right
+            currentSlide.style.transform = 'translateX(100%)';
+            currentSlide.style.opacity = '0';
+            previousSlide.style.transform = 'translateX(0)';
+            previousSlide.style.opacity = '1';
+            
+            // Start animation
+            currentSlide.classList.add('active');
+            setTimeout(() => {
+              currentSlide.style.transform = 'translateX(0)';
+              currentSlide.style.opacity = '1';
+              previousSlide.style.transform = 'translateX(-100%)';
+              previousSlide.style.opacity = '0';
+            }, 10);
+          } else {
+            // Moving backward (swipe right): new slide comes from left
+            currentSlide.style.transform = 'translateX(-100%)';
+            currentSlide.style.opacity = '0';
+            previousSlide.style.transform = 'translateX(0)';
+            previousSlide.style.opacity = '1';
+            
+            // Start animation
+            currentSlide.classList.add('active');
+            setTimeout(() => {
+              currentSlide.style.transform = 'translateX(0)';
+              currentSlide.style.opacity = '1';
+              previousSlide.style.transform = 'translateX(100%)';
+              previousSlide.style.opacity = '0';
+            }, 10);
+          }
+          
+          // Clean up after animation
+          setTimeout(() => {
+            slides.forEach((slide, index) => {
+              const slideView = views[index];
+              const slideIndex = views.indexOf(slideView);
+              
+              // Set final positions without transitions
+              slide.style.transition = 'none';
+              if (slideIndex === currentIndex) {
+                slide.classList.add('active');
+                slide.style.transform = 'translateX(0)';
+                slide.style.opacity = '1';
+              } else {
+                slide.classList.remove('active');
+                slide.style.opacity = '0';
+                if (slideIndex < currentIndex) {
+                  slide.style.transform = 'translateX(-100%)';
+                } else {
+                  slide.style.transform = 'translateX(100%)';
+                }
+              }
+              
+              // Re-enable transitions
+              setTimeout(() => {
+                slide.style.transition = '';
+              }, 10);
+            });
+          }, 350);
+        }
+      } else {
+        // Desktop: simple show/hide without animations
+        const slides = document.querySelectorAll('.view-slide');
+        slides.forEach(slide => {
+          slide.classList.remove('active');
+        });
+        
+        const activeSlide = document.getElementById(`${viewName}-view`);
+        if (activeSlide) {
+          activeSlide.classList.add('active');
+        }
       }
     }
 
-    // Touch/Swipe Navigation - simple mobile support only
+    // Touch/Swipe Navigation - improved mobile support
     function handleTouchStart(e) {
       state.touchStart = e.touches[0].clientX;
+      state.touchStartY = e.touches[0].clientY;
+      state.touchStartTime = Date.now();
     }
 
     function handleTouchEnd(e) {
       if (!state.touchStart) return;
       
       const touchEnd = e.changedTouches[0].clientX;
-      const diff = state.touchStart - touchEnd;
-      const threshold = 50;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = state.touchStart - touchEnd;
+      const diffY = state.touchStartY - touchEndY;
+      const timeDiff = Date.now() - state.touchStartTime;
       
-      if (Math.abs(diff) > threshold) {
-        const views = ['responses', 'sentiment', 'overlap'];
-        const currentIndex = views.indexOf(state.currentView);
+      // Only handle horizontal swipes (ignore vertical scrolling)
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        const threshold = 50;
+        const velocity = Math.abs(diffX) / timeDiff; // pixels per ms
         
-        if (diff > 0 && currentIndex < views.length - 1) {
-          // Swipe left - next view
-          switchView(views[currentIndex + 1]);
-        } else if (diff < 0 && currentIndex > 0) {
-          // Swipe right - previous view
-          switchView(views[currentIndex - 1]);
+        // Trigger navigation if we meet distance threshold OR velocity threshold
+        if (Math.abs(diffX) > threshold || velocity > 0.3) {
+          const views = ['responses', 'sentiment', 'overlap'];
+          const currentIndex = views.indexOf(state.currentView);
+          
+          if (diffX > 0 && currentIndex < views.length - 1) {
+            // Swipe left - next view
+            switchView(views[currentIndex + 1]);
+          } else if (diffX < 0 && currentIndex > 0) {
+            // Swipe right - previous view
+            switchView(views[currentIndex - 1]);
+          }
         }
       }
       
       state.touchStart = null;
+      state.touchStartY = null;
+      state.touchStartTime = null;
     }
 
     // Smooth Drag Navigation for Slider
